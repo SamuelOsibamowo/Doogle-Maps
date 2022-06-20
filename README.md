@@ -29,12 +29,19 @@ Original App Design Project - README Template
 
 **Required Must-have Stories**
 
-* [fill in your required user stories here]
-* ...
+* User will login/signup to access the application
+* User can interact with the onscreen map to look for reported animals nearby
+* Users can create their own reports by interacting with the onscreen map
+* Report window will allow the user to provide the location, description, and a picture of the lost animal
+* User can post & interact with a feed that consists of pet owners reporting their lost pets
+
 
 **Optional Nice-to-have Stories**
 
-* [fill in your required user stories here]
+* User will have the option to select an anonymous login option that doesn't require account creation
+* List of animals that have been captured/found in the area
+* Option for users to like missing pets post to bring attention to them
+* filter that allows a user to filter for specific animals within the map
 * ...
 
 ### 2. Screen Archetypes
