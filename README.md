@@ -46,20 +46,23 @@ Original App Design Project - README Template
 
 ### 2. Screen Archetypes
 
-* [list first screen here]
-   * [list associated required story here]
-   * ...
-* [list second screen here]
-   * [list associated required story here]
-   * ...
+* Login/Signup
+   * After downloading the app, the user is prompted to login or create an account.
+* Map Screen
+   * After login, user is directed to the map that contains all animal reports in their location
+* Feed Screen
+   * User can direct themselves to the feed which displays post of other users who have lost their pet
+* Settings Screen
+   * User can direct themselves to settings where they can change their filters/color scheme/ and even logout
 
+   
 ### 3. Navigation
 
 **Tab Navigation** (Tab to Screen)
 
-* [fill out your first tab]
-* [fill out your second tab]
-* [fill out your third tab]
+* Map
+* Feed
+* Settings
 
 **Flow Navigation** (Screen to Screen)
 
