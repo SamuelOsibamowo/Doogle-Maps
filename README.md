@@ -18,7 +18,7 @@ Original App Design Project - README Template
 [Evaluation of your app across the following attributes]
 - **Category:** Navigation
 - **Mobile:** Its essential for this app to be on mobile devices as it makes it possible for quick updates on the location of the missing/stray animals. The camera app is used to take pictures of the animals, and the map is used to give the location of the animals the user is posting.
-- **Story:** This app gives pet owners the opportunity to reunite with their lost companions by having the their community work together to make it possible.
+- **Story:** This app gives pet owners the opportunity to reunite with their lost companions by having the their community work together to make it possible. 
 - **Market:** Anybody who owns a pet or has a love for animals could use this app. With this in mind, based on the community that using it, the user base for this app could be quite large. If the user base is large, pet owners within that community will benefit greatly from it.
 - **Habit:** This app will only become a habit when the user has lost their pet, or if their community contains lots of animals. The more a user posts updates of the animals around them, the more likely they are to open the app out of habit.
 - **Scope:**
