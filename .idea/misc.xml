@@ -5,8 +5,12 @@
       <map>
         <entry key="app/src/main/res/drawable/gradient.xml" value="0.2905" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.4468802698145025" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.309730883612149" />
         <entry key="app/src/main/res/layout/activity_signup.xml" value="0.5760416666666667" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.5760416666666667" />
+        <entry key="app/src/main/res/layout/fragment_feed.xml" value="0.25905797101449274" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.25905797101449274" />
+        <entry key="app/src/main/res/menu/menu_bottom_navigation.xml" value="0.3875" />
       </map>
     </option>
   </component>

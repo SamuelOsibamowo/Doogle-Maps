@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "21210352271",
+    "project_id": "doogle-maps-5db4a",
+    "storage_bucket": "doogle-maps-5db4a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21210352271:android:3e03d9fe86230c6d067efa",
+        "android_client_info": {
+          "package_name": "com.example.dooglemaps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "21210352271-g5clqlormn8pbnf31bpd7v3gt1ocvo51.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2IdVDbRj4i5zDNyEHW1lQFJko4WkicSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "21210352271-g5clqlormn8pbnf31bpd7v3gt1ocvo51.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
