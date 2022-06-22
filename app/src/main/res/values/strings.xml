@@ -9,6 +9,8 @@
 
     <!-- string to show the text " Dont have an account-->
     <string name="sign_up"><font color='c4c4c4'>Dont have an account? </font><b>Sign up.</b></string>
+    <string name="log_in"><font color='c4c4c4'>Have an account? </font><b>Log In.</b></string>
+
 
 
 </resources>

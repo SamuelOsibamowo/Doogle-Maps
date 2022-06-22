@@ -30,14 +30,18 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         viewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory
                 .getInstance(SignupActivity.this.getApplication())).get(AuthViewModel.class);
         viewModel.getUserData().observe(this, new Observer<FirebaseUser>() {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
                 if (firebaseUser != null) {
-                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                    startActivity(intent);
+                    //Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                    //startActivity(intent);
                 }
             }
         });
