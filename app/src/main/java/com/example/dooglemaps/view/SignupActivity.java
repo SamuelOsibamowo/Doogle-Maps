@@ -15,13 +15,18 @@ import android.widget.TextView;
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.AuthViewModel;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignupActivity extends AppCompatActivity {
 
-    private EditText etEmailSignup, etPasswordSignup;
+    private EditText etEmailSignup, etPasswordSignup, etName, etUsername;
     private Button btnSignup;
     private TextView tvToLogin;
     private AuthViewModel viewModel;
+
+    private FirebaseDatabase rootNode;
+    DatabaseReference reference;
 
 
 
@@ -40,15 +45,18 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
                 if (firebaseUser != null) {
-                    //Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                    //startActivity(intent);
+                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                    startActivity(intent);
                 }
             }
         });
 
+
         tvToLogin = findViewById(R.id.tvToLogin);
         etEmailSignup = findViewById(R.id.etEmailSignup);
         etPasswordSignup = findViewById(R.id.etPasswordSignup);
+        etName = findViewById(R.id.etName);
+        etUsername = findViewById(R.id.etUsername);
         btnSignup = findViewById(R.id.btnSignup);
 
         tvToLogin.setOnClickListener(new View.OnClickListener() {
@@ -64,16 +72,27 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = etEmailSignup.getText().toString();
                 String pass = etPasswordSignup.getText().toString();
-                signUpUser(email, pass);
+                String name = etName.getText().toString();
+                String username = etUsername.getText().toString();
+                signUpUser(email, pass, name, username);
+
             }
         });
     }
 
 
 
-    private void signUpUser(String email, String pass) {
-        if (!email.isEmpty() && !pass.isEmpty()) {
+
+    private void signUpUser(String email, String pass, String name, String username) {
+        if (!email.isEmpty() && !pass.isEmpty() && !name.isEmpty() && !username.isEmpty()) {
+            // SignsUp/Registers the user
             viewModel.register(email, pass);
+
+            // Adds the users information to the database
+            rootNode = FirebaseDatabase.getInstance();
+            reference = rootNode.getReference("users");
+            UserHelperClass userHelperClass = new UserHelperClass(name, username, email, pass);
+            reference.child(username).setValue(userHelperClass);
         }
     }
 

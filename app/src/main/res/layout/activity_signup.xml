@@ -28,6 +28,30 @@
         <!-- Edit text provided to user to
                  enter email, username or phone no.-->
         <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/background_edit_text"
+            android:hint="Name"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:singleLine="true"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/background_edit_text"
+            android:hint="Username"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:singleLine="true"
+            android:textSize="14sp" />
+
+        <EditText
             android:id="@+id/etEmailSignup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
