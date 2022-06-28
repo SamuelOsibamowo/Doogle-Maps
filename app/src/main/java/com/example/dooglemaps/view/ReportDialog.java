@@ -2,7 +2,6 @@ package com.example.dooglemaps.view;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,13 +25,12 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.fragments.HomeFragment;
 
 import java.io.File;
 
 public class ReportDialog extends DialogFragment {
     public interface OnInputSelected{
-        void sendInput(String input);
+        void sendInput(String input, Bitmap takenImage);
     }
 
     public OnInputSelected inputSelected;
@@ -41,12 +39,10 @@ public class ReportDialog extends DialogFragment {
     private Button btnTakePic;
     TextView tvGoBack, tvSubmit;
 
+    Bitmap takenImage;
     private File photoFile;
     public String photoFileName = "photo.jpg";
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
-
-
-
 
 
     @Nullable
@@ -86,8 +82,8 @@ public class ReportDialog extends DialogFragment {
             public void onClick(View v) {
                 // Capturing Information
                 String description = etAnimalDescription.getText().toString();
-                if (!description.isEmpty()) {
-                    inputSelected.sendInput(description);
+                if (!description.isEmpty() && takenImage != null) {
+                    inputSelected. sendInput(description, takenImage);
                 }
                 getDialog().dismiss();
             }
@@ -119,6 +115,8 @@ public class ReportDialog extends DialogFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                // by this point we have the camera photo on disk
+                takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
                 btnTakePic.setText("Picture Uploaded");
             } else { // Result was a failure
                 Toast.makeText(getContext(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
@@ -137,7 +135,6 @@ public class ReportDialog extends DialogFragment {
         if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
             Log.d(TAG, "failed to create directory");
         }
-
 
         // Return the file target for the photo based on filename
         File file = new File(mediaStorageDir.getPath() + File.separator + fileName);
