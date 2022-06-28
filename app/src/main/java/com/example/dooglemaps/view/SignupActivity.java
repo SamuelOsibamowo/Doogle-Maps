@@ -1,7 +1,6 @@
 package com.example.dooglemaps.view;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -13,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.model.User;
 import com.example.dooglemaps.viewModel.AuthViewModel;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -91,8 +91,8 @@ public class SignupActivity extends AppCompatActivity {
             // Adds the users information to the database
             rootNode = FirebaseDatabase.getInstance();
             reference = rootNode.getReference("users");
-            UserHelperClass userHelperClass = new UserHelperClass(name, username, email, pass);
-            reference.child(username).setValue(userHelperClass);
+            User user = new User(name, username, email, pass);
+            reference.child(username).setValue(user);
         }
     }
 

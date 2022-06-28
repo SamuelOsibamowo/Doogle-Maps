@@ -2,6 +2,7 @@ package com.example.dooglemaps.view;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,6 +27,15 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.model.Report;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 
@@ -44,6 +55,12 @@ public class ReportDialog extends DialogFragment {
     public String photoFileName = "photo.jpg";
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
 
+    private Uri imageUri;
+    private FirebaseDatabase rootNode;
+    private DatabaseReference reference;
+    private StorageReference storageReference;
+
+
 
     @Nullable
     @Override
@@ -60,6 +77,10 @@ public class ReportDialog extends DialogFragment {
         tvSubmit = view.findViewById(R.id.tvSubmit);
         btnTakePic = view.findViewById(R.id.btnTakePic);
         etAnimalDescription = view.findViewById(R.id.etAnimalDescription);
+
+        rootNode = FirebaseDatabase.getInstance();
+        reference = rootNode.getReference("image");
+        storageReference = FirebaseStorage.getInstance().getReference();
 
         tvGoBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,7 +104,8 @@ public class ReportDialog extends DialogFragment {
                 // Capturing Information
                 String description = etAnimalDescription.getText().toString();
                 if (!description.isEmpty() && takenImage != null) {
-                    inputSelected. sendInput(description, takenImage);
+                    inputSelected.sendInput(description, takenImage);
+                    uploadToFirebase(imageUri);
                 }
                 getDialog().dismiss();
             }
@@ -99,8 +121,8 @@ public class ReportDialog extends DialogFragment {
         // wrap File object into a content provider
         // required for API >= 24
         // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
-        Uri fileProvider = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider.DoogleMaps", photoFile);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
+        imageUri = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider.DoogleMaps", photoFile);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
         // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
         // So as long as the result is not null, it's safe to use the intent.
@@ -153,6 +175,35 @@ public class ReportDialog extends DialogFragment {
             Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage());
         }
 
+    }
+
+    private void uploadToFirebase(Uri uri) {
+
+        StorageReference fileRef = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(uri));
+        fileRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Report report = new Report(uri.toString());
+                        String reportId = reference.push().getKey();
+                        reference.child(reportId).setValue(report);
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "Photo failed to upload: ", e);
+            }
+        });
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver cr = getContext().getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cr.getType(uri));
     }
 
 }

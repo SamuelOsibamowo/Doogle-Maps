@@ -1,12 +1,12 @@
-package com.example.dooglemaps.view;
+package com.example.dooglemaps.model;
 
-public class UserHelperClass {
+public class User {
 
     String name, username, email, password;
 
-    public UserHelperClass() {}
+    public User() {}
 
-    public UserHelperClass(String name, String username, String email, String password) {
+    public User(String name, String username, String email, String password) {
         this.name = name;
         this.username = username;
         this.email = email;
