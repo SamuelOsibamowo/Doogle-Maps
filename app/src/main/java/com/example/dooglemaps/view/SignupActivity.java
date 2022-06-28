@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -26,6 +27,7 @@ public class SignupActivity extends AppCompatActivity {
     private AuthViewModel viewModel;
 
     private FirebaseDatabase rootNode;
+    String email;
     DatabaseReference reference;
 
 
@@ -45,7 +47,8 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
                 if (firebaseUser != null) {
-                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                    intent.putExtra("email", email);
                     startActivity(intent);
                 }
             }
