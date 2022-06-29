@@ -14,13 +14,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.dialogs.PostDialog;
+import com.example.dooglemaps.dialogs.ReportDialog;
 import com.example.dooglemaps.view.MainActivity;
 import com.example.dooglemaps.view.SettingsActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 public class FeedFragment extends Fragment {
 
-    ImageView ivSettings;
+    private static final int REQUEST_CODE = 102;
+
+
+    private ImageView ivSettings;
+    private FloatingActionButton fabFeed;
 
 
     public FeedFragment() {}
@@ -36,12 +43,22 @@ public class FeedFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
+        fabFeed = view.findViewById(R.id.fabFeed);
         ivSettings = view.findViewById(R.id.ivSettings);
         ivSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 goToSettings();
+            }
+        });
+        fabFeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Opening Dialog Fragment
+                PostDialog dialog = new PostDialog();
+                dialog.setTargetFragment(FeedFragment.this, REQUEST_CODE);
+                dialog.show(getFragmentManager(), "PostDialog");
+
             }
         });
     }

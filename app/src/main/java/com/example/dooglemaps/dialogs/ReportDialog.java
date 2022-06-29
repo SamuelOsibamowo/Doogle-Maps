@@ -182,8 +182,8 @@ public class ReportDialog extends DialogFragment {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Report report = new Report(uri.toString(), description, lat, lng);
                         String reportId = reference.push().getKey();
+                        Report report = new Report(uri.toString(), description,reportId, lat, lng);
                         reference.child(reportId).setValue(report);
                     }
                 });

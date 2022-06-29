@@ -67,9 +67,6 @@ public class HomeFragment extends Fragment{
 
 
     private final static int IMAGE_CONSTRAINT = 10;
-    private Marker myMarker;
-    private String image;
-    private String description;
 
     private DatabaseReference reference;
     private BitmapDescriptor pawPinDescriptor;
@@ -122,11 +119,11 @@ public class HomeFragment extends Fragment{
     // Helper method that is called when the onMapReady is called (created mainly for cleanliness)
     private void loadMap(GoogleMap googleMap) {
         map = googleMap;
-        getCurrentLocation();
+        grabLocationAndMarkers();
     }
 
     // Helper method that is called when a marker is clicked (created mainly for cleanliness)
-    private void markerClicked(Marker marker) {
+    private void markerClicked(Marker marker, String image, String description) {
         DescriptionDialog dialog = new DescriptionDialog(image, description);
         dialog.setTargetFragment(HomeFragment.this, REQUEST_CODE);
         dialog.show(getFragmentManager(), "DescriptionDialog");
@@ -147,7 +144,7 @@ public class HomeFragment extends Fragment{
 
 
     // Method that grabs the users current location and moves the camera to that specific area
-    private void getCurrentLocation() {
+    private void grabLocationAndMarkers() {
         // First have to request for permission of the location items I am trying to use
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -183,7 +180,39 @@ public class HomeFragment extends Fragment{
                     map.addMarker(markerOptions);
                     // Adds all of the reports to the map
                     grabReports();
+                    grabReportScreens();
                 }
+            }
+        });
+    }
+
+    private void grabReportScreens() {
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                reference.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        // Goes through each of the reports
+                        for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                            for (DataSnapshot childSnapShot: snapshot.getChildren()) {
+                                Report report = childSnapShot.getValue(Report.class);
+                                String description = report.getDescription();
+                                String reportId = report.getReportId();
+                                String image = report.getImageUrl();
+                                if (reportId.equals(marker.getTitle())) {
+                                    markerClicked(marker, image, description);
+                                }
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+                return false;
             }
         });
     }
@@ -197,16 +226,13 @@ public class HomeFragment extends Fragment{
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
                     for (DataSnapshot childSnapShot: snapshot.getChildren()) {
                         Report report = childSnapShot.getValue(Report.class);
-                        description = report.getDescription();
-                        image = report.getImageUrl();
-                        double curLat = report.getLat();
-                        double curLng = report.getLng();
-                        LatLng latLng = new LatLng(curLat, curLng);
+                        LatLng latLng = new LatLng(report.getLat(), report.getLng());
                         MarkerOptions markerOptions=new MarkerOptions()
+                                .title(report.getReportId())
                                 .position(latLng)
                                 .visible(true)
                                 .icon(pawPinDescriptor);
-                        myMarker = map.addMarker(markerOptions);
+                        map.addMarker(markerOptions);
                     }
                 }
             }
@@ -223,7 +249,7 @@ public class HomeFragment extends Fragment{
         switch (REQUEST_CODE) {
             case REQUEST_CODE:
                 if (grantResults.length > 0 &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getCurrentLocation();
+                    grabLocationAndMarkers();
                 }
         }
 
