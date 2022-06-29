@@ -88,7 +88,7 @@ public class ReportDialog extends DialogFragment {
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         rootNode = FirebaseDatabase.getInstance();
-        reference = rootNode.getReference(DATABASE_REPORT_PATH);
+        reference = rootNode.getReference(DATABASE_REPORT_PATH).child(user.getUid());
         storageReference = FirebaseStorage.getInstance().getReference();
 
         tvGoBack.setOnClickListener(new View.OnClickListener() {
@@ -183,8 +183,8 @@ public class ReportDialog extends DialogFragment {
                     @Override
                     public void onSuccess(Uri uri) {
                         Report report = new Report(uri.toString(), description, lat, lng);
-                        reference.child(user.getUid()).setValue(report);
-
+                        String reportId = reference.push().getKey();
+                        reference.child(reportId).setValue(report);
                     }
                 });
             }

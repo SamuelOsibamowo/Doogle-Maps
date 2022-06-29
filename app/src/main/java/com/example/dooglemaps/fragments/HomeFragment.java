@@ -77,48 +77,6 @@ public class HomeFragment extends Fragment{
 
     public HomeFragment() {}
 
-
-    // Grabs the current reports and displays them to the map
-    public void grabReports() {
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Goes through each of the reports
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    Report report = snapshot.getValue(Report.class);
-                    description = report.getDescription();
-                    image = report.getImageUrl();
-                    double curLat = report.getLat();
-                    double curLng = report.getLng();
-                    LatLng latLng = new LatLng(curLat, curLng);
-                    MarkerOptions markerOptions=new MarkerOptions()
-                            .position(latLng)
-                            .visible(true)
-                            .icon(pawPinDescriptor);
-                    myMarker = map.addMarker(markerOptions);
-                    Toast.makeText(getContext(), "Report with description: " + description  , Toast.LENGTH_SHORT).show();
-                    map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                        @Override
-                        public boolean onMarkerClick(Marker marker) {
-                            if (marker.equals(myMarker)) {
-                                markerClicked(marker);
-                            }
-                            return false;
-                        }
-                    });
-                }
-
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-    }
-
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -197,10 +155,11 @@ public class HomeFragment extends Fragment{
             ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
             return;
         }
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(UPDATE_INTERVAL);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setFastestInterval(FASTEST_INTERVAL);
+        LocationRequest locationRequest = LocationRequest.create()
+                .setInterval(UPDATE_INTERVAL)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setFastestInterval(FASTEST_INTERVAL);
+
         LocationCallback locationCallback = new LocationCallback();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
@@ -222,11 +181,37 @@ public class HomeFragment extends Fragment{
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
                     // Add marker on map
                     map.addMarker(markerOptions);
-
                     // Adds all of the reports to the map
                     grabReports();
-
                 }
+            }
+        });
+    }
+
+    // Grabs the current reports and displays them to the map
+    public void grabReports() {
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Goes through each of the reports
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    for (DataSnapshot childSnapShot: snapshot.getChildren()) {
+                        Report report = childSnapShot.getValue(Report.class);
+                        description = report.getDescription();
+                        image = report.getImageUrl();
+                        double curLat = report.getLat();
+                        double curLng = report.getLng();
+                        LatLng latLng = new LatLng(curLat, curLng);
+                        MarkerOptions markerOptions=new MarkerOptions()
+                                .position(latLng)
+                                .visible(true)
+                                .icon(pawPinDescriptor);
+                        myMarker = map.addMarker(markerOptions);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
             }
         });
     }
