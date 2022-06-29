@@ -20,16 +20,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.view.DescriptionDialog;
-import com.example.dooglemaps.view.ReportDialog;
+import com.example.dooglemaps.model.Report;
+import com.example.dooglemaps.dialogs.DescriptionDialog;
+import com.example.dooglemaps.dialogs.ReportDialog;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -46,10 +45,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class HomeFragment extends Fragment implements ReportDialog.OnInputSelected {
+public class HomeFragment extends Fragment{
 
     public static final String TAG = "HomeFragment";
+    public static final String DATABASE_REPORT_PATH = "reports";
     private GoogleMap map;
     private SupportMapFragment mapFragment;
     FloatingActionButton fabReport;
@@ -63,31 +68,56 @@ public class HomeFragment extends Fragment implements ReportDialog.OnInputSelect
 
     private final static int IMAGE_CONSTRAINT = 10;
     private Marker myMarker;
-    private Bitmap takenImage;
+    private String image;
     private String description;
 
-
+    private DatabaseReference reference;
+    private BitmapDescriptor pawPinDescriptor;
 
 
     public HomeFragment() {}
 
 
-    // Method that grabs the information sent from the report dialog fragment and uses it to create a new marker on the map
-    @Override
-    public void sendInput(String input, Bitmap takenImage) {
-        MarkerOptions markerOptions = new MarkerOptions();
-        this.takenImage = takenImage;
-        description = input;
-        // Adds marker to the map
-        LatLng latLng = new LatLng(lat, lng);
-        markerOptions.position(latLng);
-        markerOptions.icon(bitmapDescriptor(getContext(), R.drawable.paw_pin ));
+    // Grabs the current reports and displays them to the map
+    public void grabReports() {
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Goes through each of the reports
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    Report report = snapshot.getValue(Report.class);
+                    description = report.getDescription();
+                    image = report.getImageUrl();
+                    double curLat = report.getLat();
+                    double curLng = report.getLng();
+                    LatLng latLng = new LatLng(curLat, curLng);
+                    MarkerOptions markerOptions=new MarkerOptions()
+                            .position(latLng)
+                            .visible(true)
+                            .icon(pawPinDescriptor);
+                    myMarker = map.addMarker(markerOptions);
+                    Toast.makeText(getContext(), "Report with description: " + description  , Toast.LENGTH_SHORT).show();
+                    map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            if (marker.equals(myMarker)) {
+                                markerClicked(marker);
+                            }
+                            return false;
+                        }
+                    });
+                }
 
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-        map.clear();
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
-        myMarker = map.addMarker(markerOptions);
+            }
+        });
+
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -103,7 +133,8 @@ public class HomeFragment extends Fragment implements ReportDialog.OnInputSelect
         // Get a handle to the fragment and register the callback.
         fabReport = view.findViewById(R.id.fabReport);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
-
+        reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_REPORT_PATH);
+        pawPinDescriptor = bitmapDescriptor(getContext(), R.drawable.paw_pin);
         // init the map fragment
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (mapFragment != null) {
@@ -111,6 +142,7 @@ public class HomeFragment extends Fragment implements ReportDialog.OnInputSelect
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     loadMap(googleMap);
+
                 }
             });
         }
@@ -119,7 +151,7 @@ public class HomeFragment extends Fragment implements ReportDialog.OnInputSelect
             @Override
             public void onClick(View v) {
                 // Opening Dialog Fragment
-                ReportDialog dialog = new ReportDialog();
+                ReportDialog dialog = new ReportDialog(lat, lng);
                 dialog.setTargetFragment(HomeFragment.this, REQUEST_CODE);
                 dialog.show(getFragmentManager(), "ReportDialog");
 
@@ -132,19 +164,12 @@ public class HomeFragment extends Fragment implements ReportDialog.OnInputSelect
     // Helper method that is called when the onMapReady is called (created mainly for cleanliness)
     private void loadMap(GoogleMap googleMap) {
         map = googleMap;
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                markerClicked(marker);
-                return true;
-            }
-        });
         getCurrentLocation();
     }
 
     // Helper method that is called when a marker is clicked (created mainly for cleanliness)
     private void markerClicked(Marker marker) {
-        DescriptionDialog dialog = new DescriptionDialog(takenImage, description);
+        DescriptionDialog dialog = new DescriptionDialog(image, description);
         dialog.setTargetFragment(HomeFragment.this, REQUEST_CODE);
         dialog.show(getFragmentManager(), "DescriptionDialog");
     }
@@ -190,12 +215,16 @@ public class HomeFragment extends Fragment implements ReportDialog.OnInputSelect
                     markerOptions.position(latLng);
                     markerOptions.title("Current Location");
                     markerOptions.icon(bitmapDescriptor(getContext(), R.drawable.paw_pin ));
+                    markerOptions.visible(false);
                     // Remove all marker
                     map.clear();
                     // Animating to zoom the marker
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
                     // Add marker on map
                     map.addMarker(markerOptions);
+
+                    // Adds all of the reports to the map
+                    grabReports();
 
                 }
             }

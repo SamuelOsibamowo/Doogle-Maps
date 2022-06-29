@@ -1,4 +1,4 @@
-package com.example.dooglemaps.view;
+package com.example.dooglemaps.dialogs;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -28,6 +28,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.model.Report;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,11 +43,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 
 public class ReportDialog extends DialogFragment {
-    public interface OnInputSelected{
-        void sendInput(String input, Bitmap takenImage);
-    }
 
-    public OnInputSelected inputSelected;
     private static final String TAG = "ReportDialog";
     private EditText etAnimalDescription;
     private Button btnTakePic;
@@ -65,7 +62,12 @@ public class ReportDialog extends DialogFragment {
     private StorageReference storageReference;
     private FirebaseUser user;
 
+    private double lat, lng;
 
+    public ReportDialog(double lat, double lng) {
+        this.lat = lat;
+        this.lng = lng;
+    }
 
 
     @Nullable
@@ -111,7 +113,6 @@ public class ReportDialog extends DialogFragment {
                 // Capturing Information
                 String description = etAnimalDescription.getText().toString();
                 if (!description.isEmpty() && takenImage != null) {
-                    inputSelected.sendInput(description, takenImage);
                     uploadToFirebase(imageUri, description);
                 }
                 getDialog().dismiss();
@@ -172,18 +173,6 @@ public class ReportDialog extends DialogFragment {
     }
 
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try {
-            inputSelected = (OnInputSelected) getTargetFragment();
-
-        } catch (ClassCastException e) {
-            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage());
-        }
-
-    }
-
     private void uploadToFirebase(Uri uri, String description) {
 
         StorageReference fileRef = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(uri));
@@ -193,7 +182,7 @@ public class ReportDialog extends DialogFragment {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Report report = new Report(uri.toString(), description);
+                        Report report = new Report(uri.toString(), description, lat, lng);
                         reference.child(user.getUid()).setValue(report);
 
                     }
