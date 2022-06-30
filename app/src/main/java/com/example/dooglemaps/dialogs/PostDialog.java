@@ -1,5 +1,6 @@
 package com.example.dooglemaps.dialogs;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -10,6 +11,7 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,12 +22,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.model.Post;
+import com.example.dooglemaps.model.Report;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 
@@ -83,7 +89,7 @@ public class PostDialog extends DialogFragment {
                 // Capturing Information
                 String description = etPetDescription.getText().toString();
                 if (!description.isEmpty() && chosenImage != null) {
-                    //uploadToFirebase(imageUri, description); // TODO: Connect the post information to firebase
+                    uploadToFirebase(imageUri, description); // TODO: Connect the post information to firebase
                 }
                 getDialog().dismiss();
             }
@@ -96,6 +102,29 @@ public class PostDialog extends DialogFragment {
                 onPickPhoto(view);
             }
         });
+    }
+
+    private void uploadToFirebase(Uri imageUri, String description) {
+        StorageReference fileRef = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(imageUri));
+        fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String postId = reference.push().getKey();
+                        Post post = new Post(uri.toString(), description, postId);
+                        reference.child(postId).setValue(post);
+                    }
+                });
+            }
+        });
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver cr = getContext().getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cr.getType(uri));
     }
 
     // Trigger gallery selection for a photo

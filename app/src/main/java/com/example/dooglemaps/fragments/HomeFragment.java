@@ -201,6 +201,8 @@ public class HomeFragment extends Fragment{
                                 String reportId = report.getReportId();
                                 String image = report.getImageUrl();
                                 if (reportId.equals(marker.getTitle())) {
+                                    // TODO: Figure out a way to have the animation to the marker be more smooth
+                                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(report.getLat(), report.getLng()),15));
                                     markerClicked(marker, image, description);
                                 }
                             }
