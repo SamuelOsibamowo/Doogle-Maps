@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,18 +18,32 @@ import android.widget.ImageView;
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.dialogs.PostDialog;
 import com.example.dooglemaps.dialogs.ReportDialog;
+import com.example.dooglemaps.model.Post;
+import com.example.dooglemaps.model.User;
 import com.example.dooglemaps.view.MainActivity;
+import com.example.dooglemaps.view.PostAdapter;
 import com.example.dooglemaps.view.SettingsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 
 public class FeedFragment extends Fragment {
 
     private static final int REQUEST_CODE = 102;
 
-
     private ImageView ivSettings;
     private FloatingActionButton fabFeed;
+
+    RecyclerView recyclerView;
+    DatabaseReference databaseReference;
+    PostAdapter postAdapter;
+    ArrayList<Post> posts;
 
 
     public FeedFragment() {}
@@ -45,6 +61,14 @@ public class FeedFragment extends Fragment {
 
         fabFeed = view.findViewById(R.id.fabFeed);
         ivSettings = view.findViewById(R.id.ivSettings);
+        recyclerView = view.findViewById(R.id.rvFeed);
+        databaseReference = FirebaseDatabase.getInstance().getReference("posts"); //TODO: come back and remove this magic var
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        posts = new ArrayList<>();
+        postAdapter = new PostAdapter(getContext(), posts);
+        recyclerView.setAdapter(postAdapter);
+
         ivSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,6 +82,33 @@ public class FeedFragment extends Fragment {
                 PostDialog dialog = new PostDialog();
                 dialog.setTargetFragment(FeedFragment.this, REQUEST_CODE);
                 dialog.show(getFragmentManager(), "PostDialog");
+
+            }
+        });
+
+        grabPosts();
+
+    }
+
+    private void grabPosts() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    for (DataSnapshot childSnapShot: snapshot.getChildren()) {
+                        Post post = childSnapShot.getValue(Post.class);
+
+                        posts.add(post);
+
+
+                    }
+                    postAdapter.notifyDataSetChanged();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });

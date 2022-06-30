@@ -4,6 +4,9 @@ public class Post {
 
     private String imageUrl, description, reportId;
 
+
+    public Post() {}
+
     public Post(String imageUrl, String description, String reportId) {
         this.imageUrl = imageUrl;
         this.description = description;
