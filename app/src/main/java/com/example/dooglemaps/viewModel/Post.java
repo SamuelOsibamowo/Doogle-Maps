@@ -1,4 +1,4 @@
-package com.example.dooglemaps.model;
+package com.example.dooglemaps.viewModel;
 
 public class Post {
 

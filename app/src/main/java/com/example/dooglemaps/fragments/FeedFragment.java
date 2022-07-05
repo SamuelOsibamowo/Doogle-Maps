@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,10 +16,7 @@ import android.widget.ImageView;
 
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.dialogs.PostDialog;
-import com.example.dooglemaps.dialogs.ReportDialog;
-import com.example.dooglemaps.model.Post;
-import com.example.dooglemaps.model.User;
-import com.example.dooglemaps.view.MainActivity;
+import com.example.dooglemaps.viewModel.Post;
 import com.example.dooglemaps.view.PostAdapter;
 import com.example.dooglemaps.view.SettingsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

@@ -1,4 +1,4 @@
-package com.example.dooglemaps.model;
+package com.example.dooglemaps.viewModel;
 
 import com.google.android.gms.maps.model.LatLng;
 

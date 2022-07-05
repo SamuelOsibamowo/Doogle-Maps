@@ -4,6 +4,7 @@ package com.example.dooglemaps.fragments;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,13 +21,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.model.Report;
+import com.example.dooglemaps.viewModel.Report;
 import com.example.dooglemaps.dialogs.DescriptionDialog;
 import com.example.dooglemaps.dialogs.ReportDialog;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -149,7 +151,7 @@ public class HomeFragment extends Fragment{
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE);
             return;
         }
         LocationRequest locationRequest = LocationRequest.create()
@@ -201,15 +203,11 @@ public class HomeFragment extends Fragment{
                                 String reportId = report.getReportId();
                                 String image = report.getImageUrl();
                                 if (reportId.equals(marker.getTitle())) {
-                                    // TODO: Figure out a way to have the animation to the marker be more smooth
-                                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(report.getLat(), report.getLng()),15));
                                     markerClicked(marker, image, description);
                                 }
                             }
                         }
-
                     }
-
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
                     }
@@ -243,6 +241,7 @@ public class HomeFragment extends Fragment{
             }
         });
     }
+
 
 
     @SuppressLint("NeedOnRequestPermissionsResult")

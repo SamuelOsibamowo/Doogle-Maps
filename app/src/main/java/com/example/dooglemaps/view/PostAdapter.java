@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.model.Post;
+import com.example.dooglemaps.viewModel.Post;
 
 import java.util.ArrayList;
 

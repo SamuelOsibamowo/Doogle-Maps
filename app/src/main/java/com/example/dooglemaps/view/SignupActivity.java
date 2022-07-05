@@ -1,34 +1,40 @@
 package com.example.dooglemaps.view;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.model.User;
+import com.example.dooglemaps.viewModel.User;
 import com.example.dooglemaps.viewModel.AuthViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class SignupActivity extends AppCompatActivity {
 
+
+    private final String TAG = "SignupActivity";
     private EditText etEmailSignup, etPasswordSignup, etName, etUsername;
     private Button btnSignup;
     private TextView tvToLogin;
     private AuthViewModel viewModel;
 
     private FirebaseDatabase rootNode;
-    String email;
     DatabaseReference reference;
+    String email, token;
 
 
 
@@ -40,6 +46,18 @@ public class SignupActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+
+        // grab the unique token given to the device
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (!task.isSuccessful()) {
+                    return;
+                }
+                token = task.getResult();
+                Log.i(TAG, "TAG: " + token);
+            }
+        });
 
         viewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory
                 .getInstance(SignupActivity.this.getApplication())).get(AuthViewModel.class);
@@ -94,7 +112,7 @@ public class SignupActivity extends AppCompatActivity {
             // Adds the users information to the database
             rootNode = FirebaseDatabase.getInstance();
             reference = rootNode.getReference("users");
-            User user = new User(name, username, email, pass);
+            User user = new User(name, username, email, pass, token);
             reference.child(username).setValue(user);
         }
     }
