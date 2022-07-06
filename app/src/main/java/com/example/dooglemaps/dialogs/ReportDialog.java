@@ -15,8 +15,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,16 +43,19 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 
-public class ReportDialog extends DialogFragment {
+public class ReportDialog extends DialogFragment implements AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "ReportDialog";
+
     private EditText etAnimalDescription;
     private Button btnTakePic;
-    TextView tvGoBack, tvSubmit;
+    private TextView tvGoBack, tvSubmit;
+    private Spinner spinAnimal;
 
-    Bitmap takenImage;
+    private Bitmap takenImage;
     private File photoFile;
     public String photoFileName = "photo.jpg";
+    private String animalFromSpinner = "";
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
     public static final String DATABASE_REPORT_PATH = "reports";
 
@@ -78,6 +85,7 @@ public class ReportDialog extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        spinAnimal = view.findViewById(R.id.spinAnimal);
         tvGoBack = view.findViewById(R.id.tvGoBack);
         tvSubmit = view.findViewById(R.id.tvSubmit);
         btnTakePic = view.findViewById(R.id.btnTakePic);
@@ -87,6 +95,12 @@ public class ReportDialog extends DialogFragment {
         rootNode = FirebaseDatabase.getInstance();
         reference = rootNode.getReference(DATABASE_REPORT_PATH).child(user.getUid());
         storageReference = FirebaseStorage.getInstance().getReference();
+
+        String[] animals = getResources().getStringArray(R.array.animals);
+        ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, animals);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinAnimal.setAdapter(adapter);
+        spinAnimal.setOnItemSelectedListener(this);
 
         tvGoBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +123,7 @@ public class ReportDialog extends DialogFragment {
             public void onClick(View v) {
                 // Capturing Information
                 String description = etAnimalDescription.getText().toString();
-                if (!description.isEmpty() && takenImage != null) {
+                if (!description.isEmpty() && takenImage != null && !animalFromSpinner.isEmpty()) {
                     uploadToFirebase(imageUri, description);
                 }
                 getDialog().dismiss();
@@ -180,7 +194,7 @@ public class ReportDialog extends DialogFragment {
                     @Override
                     public void onSuccess(Uri uri) {
                         String reportId = reference.push().getKey();
-                        Report report = new Report(uri.toString(), description,reportId, lat, lng);
+                        Report report = new Report(uri.toString(), description,reportId, animalFromSpinner, lat, lng);
                         reference.child(reportId).setValue(report);
                     }
                 });
@@ -199,4 +213,17 @@ public class ReportDialog extends DialogFragment {
         return mime.getExtensionFromMimeType(cr.getType(uri));
     }
 
+
+    // These two focus on
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (parent.getId() == R.id.spinAnimal) {
+            animalFromSpinner = parent.getItemAtPosition(position).toString();
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 }

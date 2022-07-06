@@ -4,18 +4,20 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Report {
 
-    private String imageUrl, description, reportId;
+    private String imageUrl, description, reportId, animal;
     private double lat, lng;
 
     public Report() {}
 
 
-    public Report(String imageUrl, String description, String reportId, double lat, double lng) {
+    public Report(String imageUrl, String description, String reportId,String animal, double lat, double lng) {
         this.reportId = reportId;
         this.imageUrl = imageUrl;
         this.description = description;
+        this.animal = animal;
         this.lat = lat;
         this.lng = lng;
+
     }
 
     public String getReportId() {
@@ -56,5 +58,13 @@ public class Report {
 
     public void setLng(double lng) {
         this.lng = lng;
+    }
+
+    public String getAnimal() {
+        return animal;
+    }
+
+    public void setAnimal(String animal) {
+        this.animal = animal;
     }
 }

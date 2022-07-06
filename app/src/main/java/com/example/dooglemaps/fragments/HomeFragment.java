@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import android.os.Message;
 import android.view.LayoutInflater;
@@ -55,23 +56,23 @@ import com.google.firebase.database.ValueEventListener;
 
 public class HomeFragment extends Fragment{
 
-    public static final String TAG = "HomeFragment";
-    public static final String DATABASE_REPORT_PATH = "reports";
-    private GoogleMap map;
-    private SupportMapFragment mapFragment;
-    FloatingActionButton fabReport;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-
-    private long UPDATE_INTERVAL = 60000;  /* 60 secs */
-    private long FASTEST_INTERVAL = 5000; /* 5 secs */
+    private static final String TAG = "HomeFragment";
+    private static final String DATABASE_REPORT_PATH = "reports";
     private static final int REQUEST_CODE = 101;
-    double lat, lng;
-
-
+    private static final long UPDATE_INTERVAL = 60000;  /* 60 secs */
+    private static final long FASTEST_INTERVAL = 5000; /* 5 secs */
     private final static int IMAGE_CONSTRAINT = 10;
 
+
+    private GoogleMap map;
+    private SupportMapFragment mapFragment;
+    private FusedLocationProviderClient fusedLocationProviderClient;
     private DatabaseReference reference;
     private BitmapDescriptor pawPinDescriptor;
+    private BitmapDescriptor blueDotDescriptor;
+
+    private FloatingActionButton fabReport;
+    private double lat, lng;
 
 
     public HomeFragment() {}
@@ -91,7 +92,8 @@ public class HomeFragment extends Fragment{
         fabReport = view.findViewById(R.id.fabReport);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
         reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_REPORT_PATH);
-        pawPinDescriptor = bitmapDescriptor(getContext(), R.drawable.paw_pin);
+        pawPinDescriptor = bitmapDescriptor(getContext(), R.drawable.paw_pin, IMAGE_CONSTRAINT);
+        blueDotDescriptor = bitmapDescriptor(getContext(), R.drawable.blue_dot, IMAGE_CONSTRAINT * 2);
         // init the map fragment
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (mapFragment != null) {
@@ -133,10 +135,10 @@ public class HomeFragment extends Fragment{
 
 
     // Method that sets the size and constraints for the drawable/image that will become the markers new icon
-    private BitmapDescriptor bitmapDescriptor(Context context, int imageResId) {
+    private BitmapDescriptor bitmapDescriptor(Context context, int imageResId, int imageConstraint) {
         Drawable drawable = ContextCompat.getDrawable(context, imageResId);
-        drawable.setBounds(0,0, drawable.getIntrinsicWidth()/IMAGE_CONSTRAINT, drawable.getIntrinsicHeight()/IMAGE_CONSTRAINT);
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth()/IMAGE_CONSTRAINT, drawable.getIntrinsicHeight()/IMAGE_CONSTRAINT, Bitmap.Config.ARGB_8888);
+        drawable.setBounds(0,0, drawable.getIntrinsicWidth()/imageConstraint, drawable.getIntrinsicHeight()/imageConstraint);
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth()/imageConstraint, drawable.getIntrinsicHeight()/imageConstraint, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         drawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
@@ -169,11 +171,9 @@ public class HomeFragment extends Fragment{
                     lat = location.getLatitude();
                     lng = location.getLongitude();
                     LatLng latLng = new LatLng(lat, lng);
-                    MarkerOptions markerOptions=new MarkerOptions();
-                    markerOptions.position(latLng);
-                    markerOptions.title("Current Location");
-                    markerOptions.icon(bitmapDescriptor(getContext(), R.drawable.paw_pin ));
-                    markerOptions.visible(false);
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(latLng)
+                            .icon(blueDotDescriptor);
                     // Remove all marker
                     map.clear();
                     // Animating to zoom the marker

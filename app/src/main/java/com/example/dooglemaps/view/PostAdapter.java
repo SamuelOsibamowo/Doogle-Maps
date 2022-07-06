@@ -68,6 +68,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
             //Log.i(TAG, "Image URL: " + post.getImageUrl() + " Post Descrip: "+ post.getDescription());
             Glide.with(context)
                     .load(post.getImageUrl())
+                    .centerCrop()
                     .into(ivMissingPet);
         }
     }

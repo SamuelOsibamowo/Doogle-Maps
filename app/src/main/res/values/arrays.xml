@@ -9,4 +9,13 @@
         <item>reply</item>
         <item>reply_all</item>
     </string-array>
+
+    <string-array name="animals" >
+        <item>Dog</item>
+        <item>Cat</item>
+        <item>Bird</item>
+        <item>Snake</item>
+        <item>Bunny</item>
+        <item>Lizard</item>
+    </string-array>
 </resources>

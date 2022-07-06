@@ -46,8 +46,6 @@ public class DescriptionDialog extends DialogFragment {
         tvDescription = view.findViewById(R.id.tvDescription);
 
         tvDescription.setText(description);
-        Toast.makeText(getContext(), "description: " + description, Toast.LENGTH_SHORT).show();
-
 
         Glide.with(getContext())
                 .load(image)

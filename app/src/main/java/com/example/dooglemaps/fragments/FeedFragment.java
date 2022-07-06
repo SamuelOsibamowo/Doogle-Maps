@@ -18,7 +18,6 @@ import com.example.dooglemaps.R;
 import com.example.dooglemaps.dialogs.PostDialog;
 import com.example.dooglemaps.viewModel.Post;
 import com.example.dooglemaps.view.PostAdapter;
-import com.example.dooglemaps.view.SettingsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,7 +32,6 @@ public class FeedFragment extends Fragment {
 
     private static final int REQUEST_CODE = 102;
 
-    private ImageView ivSettings;
     private FloatingActionButton fabFeed;
 
     RecyclerView recyclerView;
@@ -56,7 +54,6 @@ public class FeedFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         fabFeed = view.findViewById(R.id.fabFeed);
-        ivSettings = view.findViewById(R.id.ivSettings);
         recyclerView = view.findViewById(R.id.rvFeed);
         databaseReference = FirebaseDatabase.getInstance().getReference("posts"); //TODO: come back and remove this magic var
         recyclerView.setHasFixedSize(true);
@@ -65,12 +62,6 @@ public class FeedFragment extends Fragment {
         postAdapter = new PostAdapter(getContext(), posts);
         recyclerView.setAdapter(postAdapter);
 
-        ivSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToSettings();
-            }
-        });
         fabFeed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,11 +99,6 @@ public class FeedFragment extends Fragment {
 
             }
         });
-    }
-
-    private void goToSettings() {
-        Intent intent = new Intent(getActivity(), SettingsActivity.class);
-        startActivity(intent);
     }
 
 
