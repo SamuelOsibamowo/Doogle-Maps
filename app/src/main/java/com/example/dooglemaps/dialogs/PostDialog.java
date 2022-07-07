@@ -50,6 +50,13 @@ public class PostDialog extends DialogFragment {
     private StorageReference storageReference;
     private FirebaseUser user;
 
+    private double lat, lng;
+
+
+    public PostDialog(double lat, double lng) {
+        this.lat = lat;
+        this.lng = lng;
+    }
 
 
     @Nullable
@@ -111,7 +118,7 @@ public class PostDialog extends DialogFragment {
                     @Override
                     public void onSuccess(Uri uri) {
                         String postId = reference.push().getKey();
-                        Post post = new Post(uri.toString(), description, postId);
+                        Post post = new Post(uri.toString(), description, postId, lat, lng);
                         reference.child(postId).setValue(post);
                     }
                 });
