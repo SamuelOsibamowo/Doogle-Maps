@@ -1,6 +1,5 @@
 package com.example.dooglemaps.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
 
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.dialogs.PostDialog;
-import com.example.dooglemaps.viewModel.Post;
-import com.example.dooglemaps.view.PostAdapter;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.dooglemaps.dialogs.ReportDialog;
+import com.example.dooglemaps.view.ReportAdapter;
+import com.example.dooglemaps.viewModel.Report;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,78 +27,78 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 
-public class FeedFragment extends Fragment {
+public class ReportFragment extends Fragment {
 
     private static final int REQUEST_CODE = 102;
 
-    private FloatingActionButton fabFeed;
+    private Button btnReport;
+    private RecyclerView recyclerView;
+    private DatabaseReference databaseReference;
+    private ReportAdapter reportAdapter;
+    private ArrayList<Report> reports;
+    private LatLng latLng;
 
-    RecyclerView recyclerView;
-    DatabaseReference databaseReference;
-    PostAdapter postAdapter;
-    ArrayList<Post> posts;
 
 
-    public FeedFragment() {}
+
+    public ReportFragment(LatLng latLng) {
+        this.latLng = latLng;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_feed, container, false);
+        return inflater.inflate(R.layout.fragment_report, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fabFeed = view.findViewById(R.id.fabFeed);
-        recyclerView = view.findViewById(R.id.rvFeed);
-        databaseReference = FirebaseDatabase.getInstance().getReference("posts"); //TODO: come back and remove this magic var
+        btnReport = view.findViewById(R.id.btnReport);
+        recyclerView = view.findViewById(R.id.rvReports);
+        databaseReference = FirebaseDatabase.getInstance().getReference("reports"); //TODO: come back and remove this magic var
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        posts = new ArrayList<>();
-        postAdapter = new PostAdapter(getContext(), posts);
-        recyclerView.setAdapter(postAdapter);
+        reports = new ArrayList<>();
+        reportAdapter = new ReportAdapter(getContext(), reports);
+        recyclerView.setAdapter(reportAdapter);
 
-        fabFeed.setOnClickListener(new View.OnClickListener() {
+        btnReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 // Opening Dialog Fragment
-                PostDialog dialog = new PostDialog();
-                dialog.setTargetFragment(FeedFragment.this, REQUEST_CODE);
-                dialog.show(getFragmentManager(), "PostDialog");
+                ReportDialog dialog = new ReportDialog(latLng.latitude, latLng.longitude);
+                dialog.show(getFragmentManager(), "ReportDialog");
+
 
             }
         });
 
-        grabPosts();
+        grabReports();
 
     }
 
-    private void grabPosts() {
+
+    private void grabReports() {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
                     for (DataSnapshot childSnapShot: snapshot.getChildren()) {
-                        Post post = childSnapShot.getValue(Post.class);
-
-                        posts.add(post);
-
-
+                        Report report = childSnapShot.getValue(Report.class);
+                        reports.add(report);
                     }
-                    postAdapter.notifyDataSetChanged();
+                    reportAdapter.notifyDataSetChanged();
                 }
 
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
     }
-
-
 }

@@ -4,9 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.FeedFragment">
-
-
+    tools:context=".fragments.MissingFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFeed"
@@ -16,15 +14,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabFeed"
+    <Button
+        android:id="@+id/btnPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        android:clickable="true"
-        android:src="@drawable/plus_icon"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="@color/light_brown"
+        android:text="Click To Make A Post"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="@color/light_brown" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

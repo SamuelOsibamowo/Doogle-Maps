@@ -2,16 +2,17 @@ package com.example.dooglemaps.viewModel;
 
 public class User {
 
-    String name, username, email, password, token;
+    String name, username, email, password, token, userId;
 
     public User() {}
 
-    public User(String name, String username, String email, String password, String token) {
+    public User(String name, String username, String email, String password, String token, String userId) {
         this.name = name;
         this.username = username;
         this.email = email;
         this.password = password;
         this.token = token;
+        this.userId = userId;
     }
 
     public String getName() {
@@ -52,5 +53,13 @@ public class User {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

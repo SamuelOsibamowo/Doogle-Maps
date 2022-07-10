@@ -1,7 +1,8 @@
 package com.example.dooglemaps.viewModel;
 
-import com.google.android.gms.maps.model.LatLng;
+import org.parceler.Parcel;
 
+@Parcel
 public class Report {
 
     private String imageUrl, description, reportId, animal;

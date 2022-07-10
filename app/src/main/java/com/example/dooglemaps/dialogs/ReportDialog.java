@@ -3,9 +3,14 @@ package com.example.dooglemaps.dialogs;
 import static android.app.Activity.RESULT_OK;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -26,11 +32,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.Report;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +62,10 @@ import java.io.File;
 public class ReportDialog extends DialogFragment implements AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "ReportDialog";
+    private static final int IMAGE_CONSTRAINT = 10;
+    public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
+    public static final String DATABASE_REPORT_PATH = "reports";
+
 
     private EditText etAnimalDescription;
     private Button btnTakePic;
@@ -56,8 +76,6 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
     private File photoFile;
     public String photoFileName = "photo.jpg";
     private String animalFromSpinner = "";
-    public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
-    public static final String DATABASE_REPORT_PATH = "reports";
 
 
     private Uri imageUri;
@@ -66,18 +84,27 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
     private StorageReference storageReference;
     private FirebaseUser user;
 
+
+    private GoogleMap map;
+    private SupportMapFragment mapFragment;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private BitmapDescriptor pawPinDescriptor;
+    private LatLng curMarkerLoc;
+
     private double lat, lng;
 
     public ReportDialog(double lat, double lng) {
-        this.lat = lat;
-        this.lng = lng;
+        curMarkerLoc = new LatLng(lat, lng);
     }
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_report, container, false);
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        }
         return view;
     }
 
@@ -129,6 +156,29 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
                 getDialog().dismiss();
             }
         });
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_REPORT_PATH);
+        pawPinDescriptor = bitmapDescriptor(getContext(), R.drawable.paw_pin, IMAGE_CONSTRAINT);
+        // init the map fragment
+        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    loadMap(googleMap);
+                }
+            });
+        }
+
+    }
+
+    // Helper method that is called when the onMapReady is called (created mainly for cleanliness)
+    private void loadMap(GoogleMap googleMap) {
+        map = googleMap;
+        // TODO: Go to Location
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc, 16));
+
     }
 
     private void launchCamera() {
@@ -173,7 +223,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
         File mediaStorageDir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
 
         // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()) {
             Log.d(TAG, "failed to create directory");
         }
 
@@ -185,7 +235,6 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
 
 
     private void uploadToFirebase(Uri uri, String description) {
-
         StorageReference fileRef = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(uri));
         fileRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -194,7 +243,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
                     @Override
                     public void onSuccess(Uri uri) {
                         String reportId = reference.push().getKey();
-                        Report report = new Report(uri.toString(), description,reportId, animalFromSpinner, lat, lng);
+                        Report report = new Report(uri.toString(), description, reportId, animalFromSpinner, lat, lng);
                         reference.child(reportId).setValue(report);
                     }
                 });
@@ -224,6 +273,17 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    // Method that sets the size and constraints for the drawable/image that will become the markers new icon
+    private BitmapDescriptor bitmapDescriptor(Context context, int imageResId, int imageConstraint) {
+        Drawable drawable = ContextCompat.getDrawable(context, imageResId);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth() / imageConstraint, drawable.getIntrinsicHeight() / imageConstraint);
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth() / imageConstraint, drawable.getIntrinsicHeight() / imageConstraint, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
 
     }
 }

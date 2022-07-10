@@ -3,7 +3,9 @@ package com.example.dooglemaps.dialogs;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.ImageDecoder;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,12 +53,23 @@ public class PostDialog extends DialogFragment {
     private StorageReference storageReference;
     private FirebaseUser user;
 
+    private double lat, lng;
+
+
+    public PostDialog(double lat, double lng) {
+        this.lat = lat;
+        this.lng = lng;
+    }
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_post, container, false);
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        }
         return view;
     }
 
@@ -65,7 +79,7 @@ public class PostDialog extends DialogFragment {
 
         etPetDescription = view.findViewById(R.id.etPetDescription);
         btnChoosePic = view.findViewById(R.id.btnChoosePic);
-        tvPostBack = view.findViewById(R.id.tvPostBack);
+        tvPostBack = view.findViewById(R.id.tvPostGoBack);
         tvPostSubmit = view.findViewById(R.id.tvPostSubmit);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -111,7 +125,7 @@ public class PostDialog extends DialogFragment {
                     @Override
                     public void onSuccess(Uri uri) {
                         String postId = reference.push().getKey();
-                        Post post = new Post(uri.toString(), description, postId);
+                        Post post = new Post(uri.toString(), description, postId, lat, lng);
                         reference.child(postId).setValue(post);
                     }
                 });
@@ -163,7 +177,6 @@ public class PostDialog extends DialogFragment {
             imageUri = data.getData();
             // Load the image located at photoUri into selectedImage
             chosenImage = loadFromUri(imageUri);
-
             // Load the selected image into a preview
             btnChoosePic.setText("Picture uploaded!");
         }

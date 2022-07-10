@@ -18,6 +18,7 @@ import com.example.dooglemaps.viewModel.User;
 import com.example.dooglemaps.viewModel.AuthViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -32,9 +33,10 @@ public class SignupActivity extends AppCompatActivity {
     private TextView tvToLogin;
     private AuthViewModel viewModel;
 
+    FirebaseUser user;
     private FirebaseDatabase rootNode;
-    DatabaseReference reference;
-    String email, token;
+    private DatabaseReference reference;
+    private String email, token;
 
 
 
@@ -73,6 +75,7 @@ public class SignupActivity extends AppCompatActivity {
         });
 
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
         tvToLogin = findViewById(R.id.tvToLogin);
         etEmailSignup = findViewById(R.id.etEmailSignup);
         etPasswordSignup = findViewById(R.id.etPasswordSignup);
@@ -95,7 +98,7 @@ public class SignupActivity extends AppCompatActivity {
                 String pass = etPasswordSignup.getText().toString();
                 String name = etName.getText().toString();
                 String username = etUsername.getText().toString();
-                signUpUser(email, pass, name, username);
+                signUpUser(email, pass, name, username, user.getUid());
 
             }
         });
@@ -104,7 +107,7 @@ public class SignupActivity extends AppCompatActivity {
 
 
 
-    private void signUpUser(String email, String pass, String name, String username) {
+    private void signUpUser(String email, String pass, String name, String username, String userId) {
         if (!email.isEmpty() && !pass.isEmpty() && !name.isEmpty() && !username.isEmpty()) {
             // SignsUp/Registers the user
             viewModel.register(email, pass);
@@ -112,7 +115,7 @@ public class SignupActivity extends AppCompatActivity {
             // Adds the users information to the database
             rootNode = FirebaseDatabase.getInstance();
             reference = rootNode.getReference("users");
-            User user = new User(name, username, email, pass, token);
+            User user = new User(name, username, email, pass, token, userId);
             reference.child(username).setValue(user);
         }
     }
