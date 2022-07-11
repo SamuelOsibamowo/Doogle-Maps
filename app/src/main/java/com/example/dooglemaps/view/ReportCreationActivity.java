@@ -1,6 +1,10 @@
-package com.example.dooglemaps.dialogs;
+package com.example.dooglemaps.view;
 
-import static android.app.Activity.RESULT_OK;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -8,20 +12,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.webkit.MimeTypeMap;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,12 +27,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.DialogFragment;
 
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.Report;
@@ -59,9 +51,9 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 
-public class ReportDialog extends DialogFragment implements AdapterView.OnItemSelectedListener {
+public class ReportCreationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
-    private static final String TAG = "ReportDialog";
+    private static final String TAG = "ReportCreationAct";
     private static final int IMAGE_CONSTRAINT = 10;
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
     public static final String DATABASE_REPORT_PATH = "reports";
@@ -91,31 +83,19 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
     private BitmapDescriptor pawPinDescriptor;
     private LatLng curMarkerLoc;
 
-
-    public ReportDialog(LatLng latLng) {
-        curMarkerLoc = latLng;
-    }
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_report, container, false);
-        if (getDialog() != null && getDialog().getWindow() != null) {
-            getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        }
-        return view;
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_report_creation);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
-        spinAnimal = view.findViewById(R.id.spinAnimal);
-        tvGoBack = view.findViewById(R.id.tvGoBack);
-        tvSubmit = view.findViewById(R.id.tvSubmit);
-        btnTakePic = view.findViewById(R.id.btnTakePic);
-        etAnimalDescription = view.findViewById(R.id.etAnimalDescription);
+        curMarkerLoc = (LatLng) getIntent().getExtras().get("latlng");
+
+        spinAnimal = findViewById(R.id.spinAnimal);
+        tvGoBack = findViewById(R.id.tvGoBack);
+        tvSubmit = findViewById(R.id.tvSubmit);
+        btnTakePic = findViewById(R.id.btnTakePic);
+        etAnimalDescription = findViewById(R.id.etAnimalDescription);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         rootNode = FirebaseDatabase.getInstance();
@@ -123,7 +103,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
         storageReference = FirebaseStorage.getInstance().getReference();
 
         String[] animals = getResources().getStringArray(R.array.animals);
-        ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, animals);
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, animals);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinAnimal.setAdapter(adapter);
         spinAnimal.setOnItemSelectedListener(this);
@@ -132,7 +112,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
             @Override
             public void onClick(View v) {
                 // Closing Dialog
-                getDialog().dismiss();
+                finish();
 
             }
         });
@@ -152,15 +132,15 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
                 if (!description.isEmpty() && takenImage != null && !animalFromSpinner.isEmpty()) {
                     uploadToFirebase(imageUri, description);
                 }
-                getDialog().dismiss();
+                finish();
             }
         });
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_REPORT_PATH);
-        pawPinDescriptor = bitmapDescriptor(getContext(), R.drawable.paw_pin, IMAGE_CONSTRAINT);
+        pawPinDescriptor = bitmapDescriptor(this, R.drawable.paw_pin, IMAGE_CONSTRAINT);
         // init the map fragment
-        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.google_map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -171,6 +151,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
         }
 
     }
+
 
     // Helper method that is called when the onMapReady is called (created mainly for cleanliness)
     private void loadMap(GoogleMap googleMap) {
@@ -189,12 +170,12 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
         // wrap File object into a content provider
         // required for API >= 24
         // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
-        imageUri = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider.DoogleMaps", photoFile);
+        imageUri = FileProvider.getUriForFile(this, "com.codepath.fileprovider.DoogleMaps", photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
         // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
         // So as long as the result is not null, it's safe to use the intent.
-        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+        if (intent.resolveActivity(this.getPackageManager()) != null) {
             // Start the image capture intent to take photo
             startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
         }
@@ -209,7 +190,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
                 takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
                 btnTakePic.setText("Picture Uploaded");
             } else { // Result was a failure
-                Toast.makeText(getContext(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -219,7 +200,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
         // Get safe storage directory for photos
         // Use `getExternalFilesDir` on Context to access package-specific directories.
         // This way, we don't need to request external read/write runtime permissions.
-        File mediaStorageDir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
+        File mediaStorageDir = new File(this.getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()) {
@@ -256,7 +237,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
     }
 
     private String getFileExtension(Uri uri) {
-        ContentResolver cr = getContext().getContentResolver();
+        ContentResolver cr = this.getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cr.getType(uri));
     }

@@ -4,41 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/dialog_frag_background"
-    android:minWidth="350dp">
+    tools:context=".view.ReportCreationActivity">
 
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cvContainReportMap"
+    <fragment
+        android:id="@+id/reportMap"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="5dp"
+        android:layout_height="300dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <fragment
-            android:id="@+id/reportMap"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-    </androidx.cardview.widget.CardView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cvContainReportMap">
+        app:layout_constraintTop_toBottomOf="@id/reportMap">
 
         <TextView
             android:id="@+id/textView"
@@ -53,6 +37,29 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="Photo*"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <Button
+            android:id="@+id/btnTakePic"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/brown"
+            android:text="No Picture Uploaded"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+        <TextView
             android:id="@+id/textView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,12 +69,12 @@
             android:textColor="@color/black"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+            app:layout_constraintTop_toBottomOf="@+id/btnTakePic" />
 
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cvContainSpinner"
-            android:layout_width="330dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
@@ -87,29 +94,6 @@
 
         </androidx.cardview.widget.CardView>
 
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:text="Photo*"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cvContainSpinner" />
-
-        <Button
-            android:id="@+id/btnTakePic"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="@color/brown"
-            android:text="No Picture Uploaded"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
 
         <TextView
             android:id="@+id/textView3"
@@ -121,12 +105,12 @@
             android:textColor="@color/black"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnTakePic" />
+            app:layout_constraintTop_toBottomOf="@+id/cvContainSpinner" />
 
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cvContainReportDescription"
-            android:layout_width="330dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
@@ -144,56 +128,44 @@
                 android:layout_margin="10dp"
                 android:ems="10"
                 android:hint="Describe the animal"
-                android:inputType="textMultiLine"
+                android:inputType="textLongMessage"
                 android:minHeight="48dp"
                 android:singleLine="false" />
 
 
         </androidx.cardview.widget.CardView>
 
-        <View
-            android:id="@+id/view1"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:layout_marginTop="30dp"
-            android:background="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/cvContainReportDescription" />
-
-        <View
-            android:id="@+id/view2"
-            android:layout_width="0.1dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="30dp"
-            android:background="@color/black"
-            app:layout_constraintEnd_toStartOf="@id/tvSubmit"
-            app:layout_constraintStart_toEndOf="@id/tvGoBack"
-            app:layout_constraintTop_toBottomOf="@id/cvContainReportDescription" />
 
         <TextView
             android:id="@+id/tvGoBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="40dp"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:background="@color/light_brown"
+            android:gravity="center"
             android:text="Back"
+            android:textAlignment="center"
+            android:textColor="@color/black"
             android:textSize="20sp"
-            app:layout_constraintEnd_toStartOf="@id/view2"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cvContainReportDescription" />
+            app:layout_constraintEnd_toStartOf="@id/tvSubmit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/tvSubmit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:layout_marginEnd="20dp"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:background="@color/tan_brown"
+            android:gravity="center"
+            android:padding="12dp"
             android:text="Submit"
+            android:textAlignment="center"
+            android:textColor="@color/black"
             android:textSize="20sp"
+            app:layout_constraintStart_toEndOf="@id/tvGoBack"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/view2"
-            app:layout_constraintTop_toBottomOf="@+id/cvContainReportDescription" />
+            tools:layout_editor_absoluteY="372dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

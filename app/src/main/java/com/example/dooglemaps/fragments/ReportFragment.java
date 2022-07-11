@@ -1,5 +1,6 @@
 package com.example.dooglemaps.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,10 +15,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.dialogs.ReportDialog;
 import com.example.dooglemaps.view.ReportAdapter;
+import com.example.dooglemaps.view.ReportCreationActivity;
 import com.example.dooglemaps.viewModel.Report;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +33,7 @@ public class ReportFragment extends Fragment {
 
     private static final int REQUEST_CODE = 102;
 
-    private Button btnReport;
+    private FloatingActionButton btnReport;
     private RecyclerView recyclerView;
     private DatabaseReference databaseReference;
     private ReportAdapter reportAdapter;
@@ -68,9 +70,10 @@ public class ReportFragment extends Fragment {
         btnReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Opening Dialog Fragment
-                ReportDialog dialog = new ReportDialog(latLng);
-                dialog.show(getFragmentManager(), "ReportDialog");
+
+                Intent intent = new Intent(getActivity(), ReportCreationActivity.class);
+                intent.putExtra("latlng", latLng);
+                startActivity(intent);
             }
         });
 

@@ -1,5 +1,6 @@
 package com.example.dooglemaps.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.dooglemaps.R;
-import com.example.dooglemaps.dialogs.PostDialog;
 import com.example.dooglemaps.view.PostAdapter;
+import com.example.dooglemaps.view.PostCreationActivity;
 import com.example.dooglemaps.viewModel.Post;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -32,7 +33,7 @@ public class MissingFragment extends Fragment {
 
     private static final int REQUEST_CODE = 102;
 
-    private Button btnPost;
+    private FloatingActionButton btnPost;
 
     private RecyclerView recyclerView;
     private DatabaseReference databaseReference;
@@ -68,9 +69,10 @@ public class MissingFragment extends Fragment {
         btnPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Opening Dialog Fragment
-                PostDialog dialog = new PostDialog(latLng.latitude, latLng.longitude);
-                dialog.show(getFragmentManager(), "PostDialog");
+
+                Intent intent = new Intent(getActivity(), PostCreationActivity.class);
+                intent.putExtra("latlng", latLng);
+                startActivity(intent);
 
             }
         });

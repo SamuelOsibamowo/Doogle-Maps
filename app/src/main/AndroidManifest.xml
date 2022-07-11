@@ -36,9 +36,15 @@
         android:theme="@style/Theme.DoogleMaps"
         tools:targetApi="31">
         <activity
-            android:name=".view.MessageActivity"
-            android:theme="@style/MessageTheme"
+            android:name=".PostCreationActivity"
             android:exported="false" />
+        <activity
+            android:name=".ReportCreationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.MessageActivity"
+            android:exported="false"
+            android:theme="@style/MessageTheme" />
         <activity
             android:name=".view.MapPostActivity"
             android:exported="false" />
@@ -78,6 +84,13 @@
             android:exported="false" />
         <activity
             android:name=".view.PostDetailedActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ReportCreationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".view.PostCreationActivity"
             android:exported="false" />
 
         <meta-data
