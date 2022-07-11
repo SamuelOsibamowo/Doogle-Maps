@@ -5,19 +5,20 @@ import org.parceler.Parcel;
 @Parcel
 public class Report {
 
-    private String imageUrl, description, reportId, animal;
+    private String imageUrl, description, reportId, animal, userId;
     private double lat, lng;
 
     public Report() {}
 
 
-    public Report(String imageUrl, String description, String reportId,String animal, double lat, double lng) {
+    public Report(String imageUrl, String description, String reportId, String animal, String userId, double lat, double lng) {
         this.reportId = reportId;
         this.imageUrl = imageUrl;
         this.description = description;
         this.animal = animal;
         this.lat = lat;
         this.lng = lng;
+        this.userId = userId;
 
     }
 
@@ -67,5 +68,13 @@ public class Report {
 
     public void setAnimal(String animal) {
         this.animal = animal;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

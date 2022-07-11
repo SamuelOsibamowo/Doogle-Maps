@@ -35,7 +35,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DoogleMaps"
         tools:targetApi="31">
-
+        <activity
+            android:name=".view.MessageActivity"
+            android:theme="@style/MessageTheme"
+            android:exported="false" />
         <activity
             android:name=".view.MapPostActivity"
             android:exported="false" />

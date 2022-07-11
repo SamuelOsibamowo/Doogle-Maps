@@ -1,5 +1,6 @@
 package com.example.dooglemaps.view;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -24,15 +25,15 @@ public class ReportDetailedActivity extends AppCompatActivity {
     TextView tvDetailedPetDescription;
     TextView tvTypeOfAnimal;
     ImageView ivDetailedReportedPet;
-    CardView cvReportMap;
+    CardView cvReportMap, cvStartReportChat;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_detailed_report);
 
-        report = (Report) Parcels.unwrap(getIntent().getParcelableExtra(Report.class.getSimpleName())) ;
-
+        report = (Report) Parcels.unwrap(getIntent().getParcelableExtra(Report.class.getSimpleName()));
+        cvStartReportChat = findViewById(R.id.cvStartReportChat);
         cvReportMap = findViewById(R.id.cvReportMap);
         tvTypeOfAnimal = findViewById(R.id.tvTypeOfAnimal);
         tvDetailedPetDescription = findViewById(R.id.tvDetailedPetDescription);
@@ -47,7 +48,21 @@ public class ReportDetailedActivity extends AppCompatActivity {
                 goToMap();
             }
         });
+
+        cvStartReportChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToChat();
+            }
+        });
         bind();
+    }
+
+    private void goToChat() {
+        Intent intent = new Intent(ReportDetailedActivity.this, MessageActivity.class);
+        String uid = report.getUserId();
+        intent.putExtra("userId", uid);
+        startActivity(intent);
     }
 
     private void goToMap() {

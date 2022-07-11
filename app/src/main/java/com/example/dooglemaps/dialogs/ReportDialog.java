@@ -91,10 +91,9 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
     private BitmapDescriptor pawPinDescriptor;
     private LatLng curMarkerLoc;
 
-    private double lat, lng;
 
-    public ReportDialog(double lat, double lng) {
-        curMarkerLoc = new LatLng(lat, lng);
+    public ReportDialog(LatLng latLng) {
+        curMarkerLoc = latLng;
     }
 
     @Nullable
@@ -120,7 +119,7 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         rootNode = FirebaseDatabase.getInstance();
-        reference = rootNode.getReference(DATABASE_REPORT_PATH).child(user.getUid());
+        reference = rootNode.getReference(DATABASE_REPORT_PATH);
         storageReference = FirebaseStorage.getInstance().getReference();
 
         String[] animals = getResources().getStringArray(R.array.animals);
@@ -243,8 +242,8 @@ public class ReportDialog extends DialogFragment implements AdapterView.OnItemSe
                     @Override
                     public void onSuccess(Uri uri) {
                         String reportId = reference.push().getKey();
-                        Report report = new Report(uri.toString(), description, reportId, animalFromSpinner, lat, lng);
-                        reference.child(reportId).setValue(report);
+                        Report report = new Report(uri.toString(), description, reportId, animalFromSpinner, user.getUid(), curMarkerLoc.latitude, curMarkerLoc.longitude);
+                        reference.child(user.getUid()).child(reportId).setValue(report);
                     }
                 });
             }

@@ -43,11 +43,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-
-
-
-
-
         bottomNavigationView = findViewById(R.id.bottomNav);
         fragmentManager.beginTransaction().replace(R.id.flContainer, new HomeFragment()).commit();
         subscribeToTopics();

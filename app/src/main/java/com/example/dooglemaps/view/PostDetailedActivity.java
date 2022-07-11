@@ -23,14 +23,16 @@ public class PostDetailedActivity extends AppCompatActivity {
     Post post;
     TextView tvDetailedPetDescription;
     ImageView ivDetailedMissingPet;
-    CardView cvPostMap;
+    CardView cvPostMap, cvStartPostChat;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_detailed_post);
 
-        post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName())) ;
+
+        post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
+        cvStartPostChat = findViewById(R.id.cvStartPostChat);
         cvPostMap = findViewById(R.id.cvPostMap);
         tvDetailedPetDescription = findViewById(R.id.tvDetailedPostDescription);
         ivDetailedMissingPet = findViewById(R.id.ivDetailMissingPet);
@@ -44,10 +46,24 @@ public class PostDetailedActivity extends AppCompatActivity {
             }
         });
 
+        cvStartPostChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToChat();
+            }
+        });
+
         Glide.with(this)
                 .load(post.getImageUrl())
                 .centerCrop()
                 .into(ivDetailedMissingPet);
+
+    }
+
+    private void goToChat() {
+        Intent intent = new Intent(PostDetailedActivity.this, MessageActivity.class);
+        intent.putExtra("userId", post.getUserId());
+        startActivity(intent);
     }
 
     private void goToMap() {

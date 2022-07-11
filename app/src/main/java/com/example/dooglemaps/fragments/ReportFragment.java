@@ -68,12 +68,9 @@ public class ReportFragment extends Fragment {
         btnReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 // Opening Dialog Fragment
-                ReportDialog dialog = new ReportDialog(latLng.latitude, latLng.longitude);
+                ReportDialog dialog = new ReportDialog(latLng);
                 dialog.show(getFragmentManager(), "ReportDialog");
-
-
             }
         });
 
@@ -93,7 +90,6 @@ public class ReportFragment extends Fragment {
                     }
                     reportAdapter.notifyDataSetChanged();
                 }
-
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

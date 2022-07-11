@@ -125,7 +125,7 @@ public class PostDialog extends DialogFragment {
                     @Override
                     public void onSuccess(Uri uri) {
                         String postId = reference.push().getKey();
-                        Post post = new Post(uri.toString(), description, postId, lat, lng);
+                        Post post = new Post(uri.toString(), description, postId, user.getUid(), lat, lng);
                         reference.child(postId).setValue(post);
                     }
                 });
