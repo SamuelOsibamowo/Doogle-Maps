@@ -13,6 +13,7 @@ public class User {
         this.password = password;
         this.token = token;
         this.userId = userId;
+        this.imageUrl = imageUrl;
     }
 
     public String getName() {
@@ -70,4 +71,5 @@ public class User {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
 }

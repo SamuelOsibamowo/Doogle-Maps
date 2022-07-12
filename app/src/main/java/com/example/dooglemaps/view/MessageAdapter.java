@@ -1,9 +1,6 @@
 package com.example.dooglemaps.view;
 
 import android.content.Context;
-import android.content.Intent;
-import android.media.Image;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.Message;
-import com.example.dooglemaps.viewModel.Post;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -47,10 +41,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
     @Override
     public MessageAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == MSG_TYPE_RIGHT) {
-            View view = LayoutInflater.from(context).inflate(R.layout.chat_item_right, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.item_chat_right, parent, false);
             return new MessageAdapter.MyViewHolder(view);
         } else {
-            View view = LayoutInflater.from(context).inflate(R.layout.chat_item_left, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.item_chat_left, parent, false);
             return new MessageAdapter.MyViewHolder(view);
         }
     }
@@ -65,7 +59,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
                     .centerCrop()
                     .into(holder.profileImage);
         }
-        // TODO: Come back and set profile picture features
+        if (position == messages.size()-1 ) {
+            if (message.getIsSeen()) {
+                holder.isSeen.setText("Seen");
+            } else {
+                holder.isSeen.setText("Delivered");
+            }
+        } else {
+            holder.isSeen.setVisibility(View.GONE);
+        }
 
     }
 
@@ -86,13 +88,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
 
-        TextView showMessage;
+        TextView showMessage, isSeen;
         ImageView profileImage;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             showMessage = itemView.findViewById(R.id.showMessage);
             profileImage = itemView.findViewById(R.id.profileImage);
+            isSeen = itemView.findViewById(R.id.tvSeen);
 
 
         }

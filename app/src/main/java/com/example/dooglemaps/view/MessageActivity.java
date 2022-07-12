@@ -43,10 +43,13 @@ public class MessageActivity extends AppCompatActivity {
 
     private FirebaseUser curUser;
     private DatabaseReference reference;
+    private ValueEventListener seenListener;
 
     private MessageAdapter messageAdapter;
     private List<Message> messages;
     private RecyclerView recyclerView;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,16 @@ public class MessageActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,40 +102,47 @@ public class MessageActivity extends AppCompatActivity {
                     User user = childSnapShot.getValue(User.class);
                     if (user.getUserId().equals(userId)) {
                         username.setText(user.getUsername());
-                        // TODO: Set up a profile place that allows the user to change their pfp
-
                         if (!user.getImageUrl().equals("default")) {
-                            Glide.with(MessageActivity.this)
+                            Glide.with(getApplicationContext())
                                     .load(user.getImageUrl())
+                                    .centerCrop()
                                     .into(pfpImage);
                         }
-
                         readMessages(curUser.getUid(), userId, user.getImageUrl() );
                     }
 
                 }
             }
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
+        seenMessage(userId);
 
+    }
 
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+    private void seenMessage(String userId) {
+         reference = FirebaseDatabase.getInstance().getReference("chats");
+         seenListener = reference.addValueEventListener(new ValueEventListener() {
+             @Override
+             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                 for (DataSnapshot childSnap: snapshot.getChildren()) {
+                     Message message = childSnap.getValue(Message.class);
+                     if (message.getReceiver().equals(curUser.getUid()) && message.getSender().equals(userId)) {
+                         HashMap<String, Object> hashMap = new HashMap<>();
+                         hashMap.put("isSeen", true);
+                         childSnap.getRef().updateChildren(hashMap);
+                     }
+                 }
+             }
+
+             @Override
+             public void onCancelled(@NonNull DatabaseError error) {}
+         });
     }
 
     private void sendMessage(String sender, String receiver, String message) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Message msg = new Message(sender, receiver, message);
+        Message msg = new Message(sender, receiver, message, false);
         reference.child("chats").push().setValue(msg);
     }
 
@@ -152,6 +172,16 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
-
     }
- }
+
+    @Override
+    protected void onPause() {
+        reference.removeEventListener(seenListener);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+}

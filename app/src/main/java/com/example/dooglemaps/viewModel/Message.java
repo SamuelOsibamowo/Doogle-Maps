@@ -3,13 +3,16 @@ package com.example.dooglemaps.viewModel;
 public class Message {
 
     private String sender, receiver, message;
+    private boolean isSeen;
 
-    public Message(){}
+    public Message() {
+    }
 
-    public Message(String sender, String receiver, String message) {
+    public Message(String sender, String receiver, String message, Boolean isSeen) {
         this.sender = sender;
         this.receiver = receiver;
         this.message = message;
+        this.isSeen = isSeen;
     }
 
     public String getSender() {
@@ -35,4 +38,13 @@ public class Message {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public Boolean getIsSeen() {
+        return isSeen;
+    }
+
+    public void setIsSeen(Boolean isSeen) {
+        this.isSeen = isSeen;
+    }
+
 }

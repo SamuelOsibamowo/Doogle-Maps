@@ -32,4 +32,12 @@
         android:textSize="18sp"
         android:id="@+id/showMessage"/>
 
+    <TextView
+        android:id="@+id/tvSeen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/showMessage"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>
