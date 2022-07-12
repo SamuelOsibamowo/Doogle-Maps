@@ -13,8 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.viewModel.Message;
 import com.example.dooglemaps.viewModel.Report;
 import com.example.dooglemaps.viewModel.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 import org.parceler.Parcels;
@@ -26,6 +34,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 
     private Context context;
     private List<User> users;
+    private String theLastMessage;
 
     public UserAdapter(Context context, List<User> users) {
         this.context = context;
@@ -49,6 +58,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
                     .centerCrop()
                     .into(holder.profileImage);
         }
+        getLastMessage(user.getUserId(), holder.lastMessage);
+
     }
 
     @Override
@@ -59,7 +70,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        public TextView username;
+        public TextView username, lastMessage;
         public ImageView profileImage;
 
         public MyViewHolder(@NonNull View itemView) {
@@ -68,6 +79,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
             itemView.setOnClickListener(this);
             username = itemView.findViewById(R.id.username);
             profileImage = itemView.findViewById(R.id.profileImage);
+            lastMessage = itemView.findViewById(R.id.lastMessage);
 
 
         }
@@ -85,4 +97,39 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
             }
         }
     }
+
+    private void getLastMessage(String userId, TextView lastMsg) {
+        theLastMessage = "default";
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("chats");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot childSnap: snapshot.getChildren()) {
+                    Message message = childSnap.getValue(Message.class);
+                    if (message.getReceiver().equals(firebaseUser.getUid()) && message.getSender().equals(userId) ||
+                            message.getReceiver().equals(userId) && message.getSender().equals(firebaseUser.getUid())) {
+                        theLastMessage = message.getMessage();
+
+                        switch (theLastMessage) {
+                            case "default":
+                                lastMsg.setText("No Message");
+                                break;
+                            default:
+                                lastMsg.setText(theLastMessage );
+                                break;
+                        }
+                        theLastMessage = "default";
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
 }
