@@ -33,10 +33,9 @@ public class SignupActivity extends AppCompatActivity {
     private TextView tvToLogin;
     private AuthViewModel viewModel;
 
-    FirebaseUser user;
     private FirebaseDatabase rootNode;
     private DatabaseReference reference;
-    private String email, token;
+    private String email, pass, name, username, token;
 
 
 
@@ -69,13 +68,17 @@ public class SignupActivity extends AppCompatActivity {
                 if (firebaseUser != null) {
                     Intent intent = new Intent(SignupActivity.this, MainActivity.class);
                     intent.putExtra("email", email);
+                    intent.putExtra("password", pass);
+                    intent.putExtra("name", name);
+                    intent.putExtra("username", username);
+                    intent.putExtra("token", token);
+
                     startActivity(intent);
                 }
             }
         });
 
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
         tvToLogin = findViewById(R.id.tvToLogin);
         etEmailSignup = findViewById(R.id.etEmailSignup);
         etPasswordSignup = findViewById(R.id.etPasswordSignup);
@@ -94,11 +97,11 @@ public class SignupActivity extends AppCompatActivity {
         btnSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = etEmailSignup.getText().toString();
-                String pass = etPasswordSignup.getText().toString();
-                String name = etName.getText().toString();
-                String username = etUsername.getText().toString();
-                signUpUser(email, pass, name, username, user.getUid());
+                email = etEmailSignup.getText().toString();
+                pass = etPasswordSignup.getText().toString();
+                name = etName.getText().toString();
+                username = etUsername.getText().toString();
+                signUpUser(email, pass);
 
             }
         });
@@ -107,16 +110,11 @@ public class SignupActivity extends AppCompatActivity {
 
 
 
-    private void signUpUser(String email, String pass, String name, String username, String userId) {
+    private void signUpUser(String email, String pass) {
         if (!email.isEmpty() && !pass.isEmpty() && !name.isEmpty() && !username.isEmpty()) {
             // SignsUp/Registers the user
             viewModel.register(email, pass);
 
-            // Adds the users information to the database
-            rootNode = FirebaseDatabase.getInstance();
-            reference = rootNode.getReference("users");
-            User user = new User(name, username, email, pass, token, userId);
-            reference.child(username).setValue(user);
         }
     }
 

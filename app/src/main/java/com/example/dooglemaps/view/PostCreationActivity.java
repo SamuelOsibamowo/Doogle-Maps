@@ -42,6 +42,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,11 +57,12 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.IOException;
 
-public class PostCreationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class PostCreationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, GoogleMap.OnMarkerDragListener{
 
     private static final String TAG = "PostCreationAct";
     public static final String DATABASE_POST_PATH = "posts";
-    public final static int PICK_PHOTO_CODE = 1046;
+    private static final int IMAGE_CONSTRAINT = 10;
+    public static final int PICK_PHOTO_CODE = 1046;
 
     private EditText etPetDescription;
     private Button btnChoosePic;
@@ -76,6 +79,8 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
     private StorageReference storageReference;
     private FirebaseUser user;
     private LatLng curMarkerLoc;
+    private LatLng changedMarkerLoc;
+
 
     private GoogleMap map;
     private SupportMapFragment mapFragment;
@@ -90,6 +95,8 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
 
 
         curMarkerLoc = (LatLng) getIntent().getExtras().get("latlng");
+        changedMarkerLoc = curMarkerLoc;
+
 
         spinAnimal = findViewById(R.id.spinAnimal);
         tvPostBack = findViewById(R.id.tvPostGoBack);
@@ -110,10 +117,12 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        pawPinDescriptor = bitmapDescriptor(this, R.drawable.blue_paw_pin, IMAGE_CONSTRAINT);
         reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_POST_PATH);
 
+
         // init the map fragment
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.google_map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.postMap);
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -157,7 +166,13 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
     // Helper method that is called when the onMapReady is called (created mainly for cleanliness)
     private void loadMap(GoogleMap googleMap) {
         map = googleMap;
-        // TODO: Go to Location
+        map.setOnMarkerDragListener(this);
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(curMarkerLoc)
+                .icon(pawPinDescriptor)
+                .draggable(true );
+
+        map.addMarker(markerOptions);
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc, 16));
 
     }
@@ -171,7 +186,7 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
                     @Override
                     public void onSuccess(Uri uri) {
                         String postId = reference.push().getKey();
-                        Post post = new Post(uri.toString(), description, postId, user.getUid(), curMarkerLoc.latitude, curMarkerLoc.longitude);
+                        Post post = new Post(uri.toString(), description, postId, user.getUid(), changedMarkerLoc.latitude, changedMarkerLoc.longitude);
                         reference.child(user.getUid()).child(postId).setValue(post);
                     }
                 });
@@ -249,6 +264,22 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
         Canvas canvas = new Canvas(bitmap);
         drawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
+
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        changedMarkerLoc = marker.getPosition();
 
     }
 }

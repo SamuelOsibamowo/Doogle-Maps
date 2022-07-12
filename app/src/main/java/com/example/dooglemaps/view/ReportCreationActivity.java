@@ -39,6 +39,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -51,7 +53,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 
-public class ReportCreationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class ReportCreationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,GoogleMap.OnMarkerDragListener{
 
     private static final String TAG = "ReportCreationAct";
     private static final int IMAGE_CONSTRAINT = 10;
@@ -82,6 +84,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
     private FusedLocationProviderClient fusedLocationProviderClient;
     private BitmapDescriptor pawPinDescriptor;
     private LatLng curMarkerLoc;
+    private LatLng changedMarkerLoc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +93,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
 
 
         curMarkerLoc = (LatLng) getIntent().getExtras().get("latlng");
+        changedMarkerLoc = curMarkerLoc;
 
         spinAnimal = findViewById(R.id.spinAnimal);
         tvGoBack = findViewById(R.id.tvGoBack);
@@ -107,6 +111,20 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinAnimal.setAdapter(adapter);
         spinAnimal.setOnItemSelectedListener(this);
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_REPORT_PATH);
+        pawPinDescriptor = bitmapDescriptor(this, R.drawable.paw_pin, IMAGE_CONSTRAINT);
+        // init the map fragment
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.reportMap);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    loadMap(googleMap);
+                }
+            });
+        }
 
         tvGoBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,28 +153,19 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
                 finish();
             }
         });
-
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_REPORT_PATH);
-        pawPinDescriptor = bitmapDescriptor(this, R.drawable.paw_pin, IMAGE_CONSTRAINT);
-        // init the map fragment
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.google_map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    loadMap(googleMap);
-                }
-            });
-        }
-
     }
 
 
     // Helper method that is called when the onMapReady is called (created mainly for cleanliness)
     private void loadMap(GoogleMap googleMap) {
         map = googleMap;
-        // TODO: Go to Location
+        map.setOnMarkerDragListener(this);
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(curMarkerLoc)
+                .icon(pawPinDescriptor)
+                .draggable(true );
+
+        map.addMarker(markerOptions);
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc, 16));
 
     }
@@ -223,7 +232,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
                     @Override
                     public void onSuccess(Uri uri) {
                         String reportId = reference.push().getKey();
-                        Report report = new Report(uri.toString(), description, reportId, animalFromSpinner, user.getUid(), curMarkerLoc.latitude, curMarkerLoc.longitude);
+                        Report report = new Report(uri.toString(), description, reportId, animalFromSpinner, user.getUid(), changedMarkerLoc.latitude, changedMarkerLoc.longitude);
                         reference.child(user.getUid()).child(reportId).setValue(report);
                     }
                 });
@@ -264,6 +273,25 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
         Canvas canvas = new Canvas(bitmap);
         drawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
+
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+        Log.i(TAG, "OnMarkerDragStart");
+
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+        Log.i(TAG, "OnMarkerDrag");
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        Log.i(TAG, "OnMarkerDragEnd");
+        changedMarkerLoc = marker.getPosition();
 
     }
 }

@@ -9,7 +9,7 @@
         android:icon="@drawable/map_icon"/>
     <item
         android:id="@+id/action_feed"
-        android:title="Feed"
+        android:title="User"
         app:showAsAction="always"
-        android:icon="@drawable/feed_icon"/>
+        android:icon="@drawable/profile_icon"/>
 </menu>

@@ -22,17 +22,30 @@ import com.example.dooglemaps.R;
 import com.example.dooglemaps.fragments.ProfileFragment;
 import com.example.dooglemaps.fragments.HomeFragment;
 import com.example.dooglemaps.viewModel.AuthViewModel;
+import com.example.dooglemaps.viewModel.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private final FragmentManager fragmentManager = getSupportFragmentManager();
+    private FragmentManager fragmentManager;
     private BottomNavigationView bottomNavigationView;
     private AuthViewModel viewModel;
+
+    private FirebaseUser fuser;
+    private DatabaseReference reference;
+
+    private String email, pass, username, name, token;
 
 
 
@@ -42,10 +55,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        email = getIntent().getStringExtra("email");
+        pass = getIntent().getStringExtra("pass");
+        name = getIntent().getStringExtra("name");
+        username = getIntent().getStringExtra("username");
+        token = getIntent().getStringExtra("token");
 
+        fuser = FirebaseAuth.getInstance().getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("users");
+
+        fragmentManager = getSupportFragmentManager();
         bottomNavigationView = findViewById(R.id.bottomNav);
         fragmentManager.beginTransaction().replace(R.id.flContainer, new HomeFragment()).commit();
+
+        addUserToDatabase();
         subscribeToTopics();
+
 
         viewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory
                 .getInstance(MainActivity.this.getApplication())).get(AuthViewModel.class);
@@ -57,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -75,6 +99,15 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    public void addUserToDatabase(){
+
+        if (email != null) {
+            User user = new User(name, username, email, pass, token, fuser.getUid());
+            reference.child(fuser.getUid()).setValue(user);
+        }
+
     }
 
     private void goToLogin() {

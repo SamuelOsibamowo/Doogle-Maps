@@ -186,7 +186,7 @@ public class MapActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc,15));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc,16));
     }
 
 

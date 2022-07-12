@@ -4,7 +4,60 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.ProfileFragment">
+    tools:context=".fragments.ProfileFragment"
+    android:padding="8dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Profile"
+                android:textColor="@color/black" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvContainPfp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="50dp"
+                app:cardCornerRadius="50dp">
+
+                <ImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/profile_icon" />
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/cvContainPfp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="username" />
+
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
 
 
 

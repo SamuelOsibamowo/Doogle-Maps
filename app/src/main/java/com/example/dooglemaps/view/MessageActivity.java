@@ -43,7 +43,6 @@ public class MessageActivity extends AppCompatActivity {
 
     private FirebaseUser curUser;
     private DatabaseReference reference;
-    private Intent intent;
 
     private MessageAdapter messageAdapter;
     private List<Message> messages;
@@ -53,9 +52,9 @@ public class MessageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
-        intent = getIntent();
 
-        String userId = intent.getStringExtra("userId");
+        String userId = getIntent().getStringExtra("userId");
+
         toolbar = findViewById(R.id.toolbar);
         pfpImage = findViewById(R.id.profileImage);
         username = findViewById(R.id.username);
@@ -88,13 +87,15 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot childSnapShot: snapshot.getChildren()) {
                     User user = childSnapShot.getValue(User.class);
-                    username.setText(user.getUsername());
-                    // TODO: Set up a profile place that allows the user to change their pfp
-                    Glide.with(MessageActivity.this)
-                            .load(R.drawable.profile_icon)
-                            .into(pfpImage);
+                    if (user.getUserId().equals(userId)) {
+                        username.setText(user.getUsername());
+                        // TODO: Set up a profile place that allows the user to change their pfp
+                        Glide.with(MessageActivity.this)
+                                .load(R.drawable.profile_icon)
+                                .into(pfpImage);
 
-                    readMessages(curUser.getUid(), userId, "" ); // TODO: Replace with actual image profile string
+                        readMessages(curUser.getUid(), userId, "" ); // TODO: Replace with actual image profile string
+                    }
 
                 }
             }

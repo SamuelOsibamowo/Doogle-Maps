@@ -72,7 +72,7 @@ public class MapPostActivity extends AppCompatActivity {
                 .position(curMarkerLoc)
                 .visible(true)
                 .icon(pawPinDescriptor);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc,15));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc,16));
         map.addMarker(markerOptions);
     }
 

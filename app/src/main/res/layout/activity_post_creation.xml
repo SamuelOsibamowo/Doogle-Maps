@@ -7,7 +7,7 @@
     tools:context=".view.PostCreationActivity">
 
     <fragment
-        android:id="@+id/reportMap"
+        android:id="@+id/postMap"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="300dp"
@@ -22,7 +22,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/reportMap">
+        app:layout_constraintTop_toBottomOf="@id/postMap">
 
         <TextView
             android:id="@+id/textView"
