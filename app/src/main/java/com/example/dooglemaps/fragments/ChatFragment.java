@@ -97,10 +97,8 @@ public class ChatFragment extends Fragment {
                     for (String id: userList) {
                         if (user.getUserId().equals(id)) {
                             if (users.size() != 0) {
-                                for (User user1: users) {
-                                    if (!user.getUserId().equals(user1.getUserId())) {
-                                        users.add(user);
-                                    }
+                                if (!users.contains(user)) {
+                                    users.add(user);
                                 }
                             } else {
                                 users.add(user);
@@ -110,10 +108,7 @@ public class ChatFragment extends Fragment {
                 }
                 userAdapter = new UserAdapter(getContext(), users);
                 recyclerView.setAdapter(userAdapter);
-
-
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 

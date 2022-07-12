@@ -42,7 +42,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Post post = posts.get(position);
-        Log.i(TAG, "Image URL: " + post.getImageUrl() + " Post Description: " + post.getDescription());
         holder.bind(post);
 
     }

@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     public void addUserToDatabase(){
 
         if (email != null) {
-            User user = new User(name, username, email, pass, token, fuser.getUid());
+            User user = new User(name, username, email, pass, token, fuser.getUid(), "default");
             reference.child(fuser.getUid()).setValue(user);
         }
 
@@ -130,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 viewModel.signOut();
                 return true;
             case R.id.itemProfile:
-                Toast.makeText(this, "Item 2 selected", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.Post;
 import com.example.dooglemaps.view.PostAdapter;
@@ -64,17 +65,18 @@ public class ProfileFragment extends Fragment {
                 //TODO: Go through usernames and make sure that
                 User user = snapshot.getValue(User.class);
                 username.setText(user.getUsername());
-
+                if (!user.getImageUrl().equals("default")) {
+                    Glide.with(getActivity())
+                            .load(user.getImageUrl())
+                            .centerCrop()
+                            .into(profileImage);
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
-
-
-
     }
 
 

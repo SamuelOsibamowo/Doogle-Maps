@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.Report;
 import com.example.dooglemaps.viewModel.User;
@@ -42,7 +43,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         User user = users.get(position);
         holder.username.setText(user.getUsername());
-        // TODO: set up profile picture stuff
+        if (!user.getImageUrl().equals("default")) {
+            Glide.with(context)
+                    .load(user.getImageUrl())
+                    .centerCrop()
+                    .into(holder.profileImage);
+        }
     }
 
     @Override

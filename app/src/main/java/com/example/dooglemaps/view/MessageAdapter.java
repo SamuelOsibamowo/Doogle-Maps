@@ -59,6 +59,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
     public void onBindViewHolder(@NonNull MessageAdapter.MyViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.showMessage.setText(message.getMessage());
+        if (!imageUrl.equals("default")) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .centerCrop()
+                    .into(holder.profileImage);
+        }
         // TODO: Come back and set profile picture features
 
     }

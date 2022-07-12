@@ -36,6 +36,9 @@
         android:theme="@style/Theme.DoogleMaps"
         tools:targetApi="31">
         <activity
+            android:name=".EditProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".PostCreationActivity"
             android:exported="false" />
         <activity
@@ -88,9 +91,12 @@
         <activity
             android:name=".view.ReportCreationActivity"
             android:exported="false" />
-
         <activity
             android:name=".view.PostCreationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".view.EditProfileActivity"
             android:exported="false" />
 
         <meta-data

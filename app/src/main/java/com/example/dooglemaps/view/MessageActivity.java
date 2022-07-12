@@ -90,11 +90,14 @@ public class MessageActivity extends AppCompatActivity {
                     if (user.getUserId().equals(userId)) {
                         username.setText(user.getUsername());
                         // TODO: Set up a profile place that allows the user to change their pfp
-                        Glide.with(MessageActivity.this)
-                                .load(R.drawable.profile_icon)
-                                .into(pfpImage);
 
-                        readMessages(curUser.getUid(), userId, "" ); // TODO: Replace with actual image profile string
+                        if (!user.getImageUrl().equals("default")) {
+                            Glide.with(MessageActivity.this)
+                                    .load(user.getImageUrl())
+                                    .into(pfpImage);
+                        }
+
+                        readMessages(curUser.getUid(), userId, user.getImageUrl() );
                     }
 
                 }
