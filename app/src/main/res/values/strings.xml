@@ -4,6 +4,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="google_maps_api_key">AIzaSyD7GBimp96VAH1csisv-WfZrt0uMBDxgBc</string>
     <string name="project_server_key">BLEQ1frhEgj5TbBGAl2XOF4J0cMixnqGyVgBKlqvU44QxrUq49WZBj6c1mZdpKY3WzsxHtKXqrD5vjdi9cvmjjc</string>
+    <string name="server_key">AAAABPA8So8:APA91bHrC78lsDSZlSb7Bz7VW9SlHug0HWkUv83oVf1Srtg_6g-xyHJPAifR4OesV7b76Y94TbrvTXzxiDSciR5nST9sPfHHIQay02jbUdX2dUbk-vDJI0IfNQCityOdoFOzv3Xokpvp</string>
 
     <!-- string for showing the text "Forgot your login details-->
     <string name="forgot"><font color='c4c4c4'>Forgot your login details? </font><b>Get help logging in.</b></string>

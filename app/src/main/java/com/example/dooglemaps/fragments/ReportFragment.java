@@ -76,7 +76,6 @@ public class ReportFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
         grabReports();
 
     }

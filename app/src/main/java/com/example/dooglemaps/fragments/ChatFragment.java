@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.notifications.Token;
 import com.example.dooglemaps.view.MessageActivity;
 import com.example.dooglemaps.view.ReportDetailedActivity;
 import com.example.dooglemaps.view.UserAdapter;
@@ -26,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +85,14 @@ public class ChatFragment extends Fragment {
 
             }
         });
+
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+    }
+
+    private void updateToken(String token) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("tokens");
+        Token updateToken = new Token(token);
+        reference.child(user.getUid()).setValue(updateToken);
     }
 
     private void readChats() {
