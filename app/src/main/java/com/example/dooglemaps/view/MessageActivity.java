@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -200,17 +201,10 @@ public class MessageActivity extends AppCompatActivity {
                                         if (response.body().success != 1) {
                                             Toast.makeText(MessageActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
                                         }
-                                    } else {
-                                        Log.i("testing", "sent noti");
-
                                     }
-
                                 }
-
                                 @Override
-                                public void onFailure(Call<MyResponse> call, Throwable t) {
-
-                                }
+                                public void onFailure(Call<MyResponse> call, Throwable t) {}
                             });
                 }
 
@@ -218,7 +212,6 @@ public class MessageActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
 

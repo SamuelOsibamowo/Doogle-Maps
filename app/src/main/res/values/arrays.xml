@@ -18,4 +18,11 @@
         <item>Bunny</item>
         <item>Lizard</item>
     </string-array>
+
+    <string-array name="filter" >
+        <item>All</item>
+        <item>Dog</item>
+        <item>Cat</item>
+        <item>Other</item>
+    </string-array>
 </resources>

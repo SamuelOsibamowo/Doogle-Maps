@@ -13,6 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,9 +31,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.fragments.ApiService;
+import com.example.dooglemaps.notifications.Client;
+import com.example.dooglemaps.notifications.Data;
+import com.example.dooglemaps.notifications.MyResponse;
+import com.example.dooglemaps.notifications.Sender;
+import com.example.dooglemaps.notifications.Token;
+import com.example.dooglemaps.viewModel.Post;
 import com.example.dooglemaps.viewModel.Report;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -45,13 +52,24 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ReportCreationActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,GoogleMap.OnMarkerDragListener{
 
@@ -69,7 +87,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
     private Bitmap takenImage;
     private File photoFile;
     public String photoFileName = "photo.jpg";
-    private String animalFromSpinner = "";
+    private String animalFromSpinner = "Dog";
 
 
     private Uri imageUri;
@@ -77,13 +95,13 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
     private DatabaseReference reference;
     private StorageReference storageReference;
     private FirebaseUser user;
+    private ApiService apiService;
+
 
 
     private GoogleMap map;
     private SupportMapFragment mapFragment;
-    private FusedLocationProviderClient fusedLocationProviderClient;
     private BitmapDescriptor pawPinDescriptor;
-    private LatLng curMarkerLoc;
     private LatLng changedMarkerLoc;
 
     @Override
@@ -92,8 +110,10 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
         setContentView(R.layout.activity_report_creation);
 
 
-        curMarkerLoc = (LatLng) getIntent().getExtras().get("latlng");
-        changedMarkerLoc = curMarkerLoc;
+        changedMarkerLoc = (LatLng) getIntent().getExtras().get("latlng");
+        apiService = Client.getClient("https://fcm.googleapis.com/").create(ApiService.class);
+
+
 
         spinAnimal = findViewById(R.id.spinAnimal);
         tvGoBack = findViewById(R.id.tvGoBack);
@@ -112,7 +132,6 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
         spinAnimal.setAdapter(adapter);
         spinAnimal.setOnItemSelectedListener(this);
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         reference = FirebaseDatabase.getInstance().getReference().child(DATABASE_REPORT_PATH);
         pawPinDescriptor = bitmapDescriptor(this, R.drawable.paw_pin, IMAGE_CONSTRAINT);
         // init the map fragment
@@ -147,10 +166,89 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
             public void onClick(View v) {
                 // Capturing Information
                 String description = etAnimalDescription.getText().toString();
-                if (!description.isEmpty() && takenImage != null && !animalFromSpinner.isEmpty()) {
+                if (!description.isEmpty() && takenImage != null) {
                     uploadToFirebase(imageUri, description);
+                    matchingAlgorithm(description);
                 }
                 finish();
+            }
+        });
+    }
+
+    private void matchingAlgorithm(String description) {
+        // Go through all of the posts that have been made
+        DatabaseReference postReference = FirebaseDatabase.getInstance().getReference("posts");
+        postReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot parentSnap: snapshot.getChildren()) {
+                    for (DataSnapshot childSnap: parentSnap.getChildren()) {
+                        // Use the levenshtein string checker to see how similar the descriptions, address, and, animal type
+                        Post post = childSnap.getValue(Post.class);
+                        String addressPost = "";
+                        String addressReport = "";
+
+                        Geocoder geocoder = new Geocoder(ReportCreationActivity.this, Locale.getDefault());
+                        try {
+                            List<Address> addressListReport = geocoder.getFromLocation(changedMarkerLoc.latitude, changedMarkerLoc.longitude,1);
+                            List<Address> addressListPost = geocoder.getFromLocation(post.getLat(), post.getLng(),1);
+                            if (addressListPost.size() > 0 && addressListReport.size() > 0) {
+                                addressPost = addressListPost.get(0).getAddressLine(0);
+                                addressReport = addressListReport.get(0).getAddressLine(0);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        int check1 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(animalFromSpinner, post.getAnimal());
+                        int check2 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(description, post.getDescription());
+                        int check3 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(addressReport, addressPost);
+
+                        // Algorithm can allow minimal differences in address, lots of differences in descriptions, and no differences in animal type
+                        if (check1 == 0 && check2 < 20 && check3 < 15) {
+                            // If a post meets the threshold (send a notification) or (add it to recycler view that shows matching posts)
+                            sendNotification(post.getUserId());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    private void sendNotification(String receiver) {
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("tokens");
+        Query query = tokens.orderByKey().equalTo(receiver);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot childSnap: snapshot.getChildren()){
+                    Token token = childSnap.getValue(Token.class);
+                    Data data = new Data(user.getUid(), R.drawable.paw_logo, "Report matching your post found!", "New Report!", receiver);
+                    Sender sender = new Sender(data, token.getToken());
+                    apiService.sendNotification(sender)
+                            .enqueue(new Callback<MyResponse>() {
+                                @Override
+                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                                    if (response.code() == 200) {
+                                        if (response.body().success != 1) {
+                                            Toast.makeText(ReportCreationActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<MyResponse> call, Throwable t) {}
+                            });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
             }
         });
     }
@@ -161,12 +259,12 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
         map = googleMap;
         map.setOnMarkerDragListener(this);
         MarkerOptions markerOptions = new MarkerOptions()
-                .position(curMarkerLoc)
+                .position(changedMarkerLoc)
                 .icon(pawPinDescriptor)
                 .draggable(true );
 
         map.addMarker(markerOptions);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(curMarkerLoc, 16));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(changedMarkerLoc, 16));
 
     }
 

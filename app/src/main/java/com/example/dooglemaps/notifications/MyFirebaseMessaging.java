@@ -15,7 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.dooglemaps.fragments.HomeFragment;
+import com.example.dooglemaps.view.MainActivity;
 import com.example.dooglemaps.view.MessageActivity;
+import com.example.dooglemaps.view.ReportDetailedActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -34,11 +37,13 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage message) {
         super.onMessageReceived(message);
 
-        Log.i(TAG, "got here 1");
-
         String sented = message.getData().get("sented");
+        String msg = message.getData().get("body");
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        if ( firebaseUser != null && msg.equals("Report matching your post found!")) {
+            sendMatchingNotification(message);
+        }
         if (firebaseUser != null && sented.equals(firebaseUser.getUid())){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 sendOreoNotification(message);
@@ -46,6 +51,38 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 sendNotification(message);
             }
         }
+    }
+
+    private void sendMatchingNotification(RemoteMessage message) {
+        String user = message.getData().get("user");
+        String icon = message.getData().get("icon");
+        String title = message.getData().get("title");
+        String body = message.getData().get("body");
+
+        RemoteMessage.Notification notification = message.getNotification();
+        int j = Integer.parseInt(user.replaceAll("[\\D]", ""));
+        Intent intent = new Intent(this, ReportDetailedActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("userId", user);
+        intent.putExtras(bundle).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(Integer.parseInt(icon))
+                .setContentTitle(title)
+                .setContentText(body)
+                .setAutoCancel(true)
+                .setSound(defaultSound)
+                .setContentIntent(pendingIntent);
+        NotificationManager noti  =(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        int i = 0;
+        if (j > 0) {
+            i = j;
+        }
+
+        noti.notify(i, builder.build());
     }
 
     private void sendOreoNotification(RemoteMessage remoteMessage){
@@ -57,9 +94,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         RemoteMessage.Notification notification = remoteMessage.getNotification();
         int j = Integer.parseInt(user.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, MessageActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("userid", user);
-        intent.putExtras(bundle);
+        intent.putExtra("userId", user);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_IMMUTABLE);
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -72,7 +107,6 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         if (j > 0){
             i = j;
         }
-
         oreoNotification.getManager().notify(i, builder.build());
 
     }
@@ -86,9 +120,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         RemoteMessage.Notification notification = message.getNotification();
         int j = Integer.parseInt(user.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, MessageActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("userId", user);
-        intent.putExtras(bundle).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("userId", user).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_IMMUTABLE);
 
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

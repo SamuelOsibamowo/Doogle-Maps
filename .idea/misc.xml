@@ -8,6 +8,8 @@
         <entry key="app/src/main/res/drawable/background_edit_text.xml" value="0.7148897094726563" />
         <entry key="app/src/main/res/drawable/background_left.xml" value="0.122" />
         <entry key="app/src/main/res/drawable/background_right.xml" value="0.122" />
+        <entry key="app/src/main/res/drawable/background_search.xml" value="0.1695" />
+        <entry key="app/src/main/res/drawable/background_spin.xml" value="0.1695" />
         <entry key="app/src/main/res/drawable/bottom_sheet_background.xml" value="0.1745" />
         <entry key="app/src/main/res/drawable/gradient.xml" value="0.2905" />
         <entry key="app/src/main/res/drawable/gradient_login.xml" value="0.1545" />

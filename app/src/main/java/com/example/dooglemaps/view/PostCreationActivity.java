@@ -70,7 +70,7 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
     private Uri imageUri;
     private Bitmap chosenImage;
     private Spinner spinAnimal;
-    private String animalFromSpinner = "";
+    private String animalFromSpinner = "Dog";
 
 
 
@@ -146,7 +146,7 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
                 // Capturing Information
                 String description = etPetDescription.getText().toString();
                 if (!description.isEmpty() && chosenImage != null) {
-                    uploadToFirebase(imageUri, description); // TODO: Connect the post information to firebase
+                    uploadToFirebase(imageUri, description);
                 }
                 finish();
             }
@@ -186,7 +186,7 @@ public class PostCreationActivity extends AppCompatActivity implements AdapterVi
                     @Override
                     public void onSuccess(Uri uri) {
                         String postId = reference.push().getKey();
-                        Post post = new Post(uri.toString(), description, postId, user.getUid(), changedMarkerLoc.latitude, changedMarkerLoc.longitude);
+                        Post post = new Post(uri.toString(), description, postId, animalFromSpinner, user.getUid(), changedMarkerLoc.latitude, changedMarkerLoc.longitude);
                         reference.child(user.getUid()).child(postId).setValue(post);
                     }
                 });
