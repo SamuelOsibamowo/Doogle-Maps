@@ -15,6 +15,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -77,6 +78,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
     private static final int IMAGE_CONSTRAINT = 10;
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
     public static final String DATABASE_REPORT_PATH = "reports";
+    public static final double METER_TO_MILE = .000621;
 
 
     private EditText etAnimalDescription;
@@ -168,14 +170,13 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
                 String description = etAnimalDescription.getText().toString();
                 if (!description.isEmpty() && takenImage != null) {
                     uploadToFirebase(imageUri, description);
-                    matchingAlgorithm(description);
                 }
                 finish();
             }
         });
     }
 
-    private void matchingAlgorithm(String description) {
+    private void matchingAlgorithm(Report report) {
         // Go through all of the posts that have been made
         DatabaseReference postReference = FirebaseDatabase.getInstance().getReference("posts");
         postReference.addValueEventListener(new ValueEventListener() {
@@ -185,28 +186,15 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
                     for (DataSnapshot childSnap: parentSnap.getChildren()) {
                         // Use the levenshtein string checker to see how similar the descriptions, address, and, animal type
                         Post post = childSnap.getValue(Post.class);
-                        String addressPost = "";
-                        String addressReport = "";
 
-                        Geocoder geocoder = new Geocoder(ReportCreationActivity.this, Locale.getDefault());
-                        try {
-                            List<Address> addressListReport = geocoder.getFromLocation(changedMarkerLoc.latitude, changedMarkerLoc.longitude,1);
-                            List<Address> addressListPost = geocoder.getFromLocation(post.getLat(), post.getLng(),1);
-                            if (addressListPost.size() > 0 && addressListReport.size() > 0) {
-                                addressPost = addressListPost.get(0).getAddressLine(0);
-                                addressReport = addressListReport.get(0).getAddressLine(0);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        int check1 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(animalFromSpinner, post.getAnimal());
-                        int check2 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(description, post.getDescription());
-                        int check3 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(addressReport, addressPost);
-
+                        int check1 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(report.getAnimal(), post.getAnimal());
+                        int check2 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(report.getDescription(), post.getDescription());
+                        //int check3 = LevenshteinDistanceDP.compute_Levenshtein_distanceDP(addressReport, addressPost);
+                        double distance = calculateDistance(new LatLng(report.getLat(), report.getLng()), new LatLng(post.getLat(), post.getLng()));
                         // Algorithm can allow minimal differences in address, lots of differences in descriptions, and no differences in animal type
-                        if (check1 == 0 && check2 < 20 && check3 < 15) {
+                        if (check1 == 0 && check2 < 20 && distance <= 10) {
                             // If a post meets the threshold (send a notification) or (add it to recycler view that shows matching posts)
-                            sendNotification(post.getUserId());
+                            sendNotification(post.getUserId(), report);
                         }
                     }
                 }
@@ -220,7 +208,13 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
 
     }
 
-    private void sendNotification(String receiver) {
+    public double calculateDistance(LatLng pos1, LatLng pos2) {
+        float[] results = new float[1];
+        Location.distanceBetween(pos1.latitude, pos1.longitude, pos2.latitude, pos2.longitude, results);
+        return results[0] * METER_TO_MILE;
+    }
+
+    private void sendNotification(String receiver, Report report) {
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("tokens");
         Query query = tokens.orderByKey().equalTo(receiver);
         query.addValueEventListener(new ValueEventListener() {
@@ -228,7 +222,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot childSnap: snapshot.getChildren()){
                     Token token = childSnap.getValue(Token.class);
-                    Data data = new Data(user.getUid(), R.drawable.paw_logo, "Report matching your post found!", "New Report!", receiver);
+                    Data data = new Data(user.getUid(), R.drawable.paw_logo, report.getReportId(), "New Report!", receiver);
                     Sender sender = new Sender(data, token.getToken());
                     apiService.sendNotification(sender)
                             .enqueue(new Callback<MyResponse>() {
@@ -244,9 +238,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
                                 public void onFailure(Call<MyResponse> call, Throwable t) {}
                             });
                 }
-
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
@@ -332,6 +324,8 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
                         String reportId = reference.push().getKey();
                         Report report = new Report(uri.toString(), description, reportId, animalFromSpinner, user.getUid(), changedMarkerLoc.latitude, changedMarkerLoc.longitude);
                         reference.child(user.getUid()).child(reportId).setValue(report);
+                        matchingAlgorithm(report);
+
                     }
                 });
             }

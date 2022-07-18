@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.dooglemaps.R;
+import com.example.dooglemaps.notifications.Token;
 import com.example.dooglemaps.view.VPAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -30,6 +31,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class HomeFragment extends Fragment{
 
@@ -40,6 +46,7 @@ public class HomeFragment extends Fragment{
     private static final long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private static final long FASTEST_INTERVAL = 5000; /* 5 secs */
 
+    private FirebaseUser user;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private double lat, lng;
 
@@ -62,17 +69,25 @@ public class HomeFragment extends Fragment{
         super.onViewCreated(view, savedInstanceState);
         // Get a handle to the fragment and register the callback.
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.vpTab);
         tabLayout.setupWithViewPager(viewPager);
 
+
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
         grabLocation();
-        Log.i(TAG, "stop");
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+
+    }
 
 
-
-
+    private void updateToken(String token) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("tokens");
+        Token updateToken = new Token(token);
+        reference.child(user.getUid()).setValue(updateToken);
     }
 
     // Method that grabs the users current location and moves the camera to that specific area
