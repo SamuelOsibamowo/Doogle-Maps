@@ -2,7 +2,11 @@ package com.example.dooglemaps.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,8 +26,7 @@ import org.parceler.Parcels;
 public class ReportDetailedActivity extends AppCompatActivity {
 
     Report report;
-    TextView tvDetailedPetDescription;
-    TextView tvTypeOfAnimal;
+    TextView tvDetailedPetDescription, tvTypeOfAnimal, tvShare;
     ImageView ivDetailedReportedPet;
     CardView cvReportMap, cvStartReportChat;
 
@@ -33,6 +36,8 @@ public class ReportDetailedActivity extends AppCompatActivity {
         setContentView(R.layout.item_detailed_report);
 
         report = (Report) Parcels.unwrap(getIntent().getParcelableExtra(Report.class.getSimpleName()));
+
+        tvShare = findViewById(R.id.tvShare);
         cvStartReportChat = findViewById(R.id.cvStartReportChat);
         cvReportMap = findViewById(R.id.cvReportMap);
         tvTypeOfAnimal = findViewById(R.id.tvTypeOfAnimal);
@@ -41,6 +46,14 @@ public class ReportDetailedActivity extends AppCompatActivity {
 
         tvDetailedPetDescription.setText(report.getDescription());
         tvTypeOfAnimal.setText(report.getAnimal());
+        bind();
+
+        tvShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToShare();
+            }
+        });
 
         cvReportMap.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +68,20 @@ public class ReportDetailedActivity extends AppCompatActivity {
                 goToChat();
             }
         });
-        bind();
+    }
+
+    private void goToShare() {
+        BitmapDrawable drawable = (BitmapDrawable) ivDetailedReportedPet.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+        String bitmapPath = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "title", null);
+        Uri uri = Uri.parse(bitmapPath);
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("image/png");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.putExtra(Intent.EXTRA_TEXT, "Reported Animal: " + report.getDescription());
+        startActivity(Intent.createChooser(intent, "Share"));
+
     }
 
     private void goToChat() {

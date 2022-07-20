@@ -2,6 +2,7 @@ package com.example.dooglemaps.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,12 @@ import com.bumptech.glide.Glide;
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.Post;
 import com.example.dooglemaps.viewModel.Report;
+import com.example.dooglemaps.viewModel.User;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.parceler.Parcels;
 
@@ -57,6 +64,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.MyViewHold
 
         ImageView ivReportedPet;
         TextView tvReportDescription;
+        TextView tvUsername;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -64,10 +72,25 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.MyViewHold
             itemView.setOnClickListener(this);
             tvReportDescription= itemView.findViewById(R.id.tvReportDescription);
             ivReportedPet = itemView.findViewById(R.id.ivReportedPet);
+            tvUsername = itemView.findViewById(R.id.tvUsername);
         }
 
         public void bind(Report report) {
-            tvReportDescription.setText(report.getDescription());
+            String description = "<b>" + "Info: " + "</b>" + report.getDescription();
+            String userId = report.getUserId();
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users").child(userId);
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User user = snapshot.getValue(User.class);
+                    tvUsername.setText(user.getUsername());
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+            tvReportDescription.setText(Html.fromHtml(description));
             Glide.with(context)
                     .load(report.getImageUrl())
                     .centerCrop()

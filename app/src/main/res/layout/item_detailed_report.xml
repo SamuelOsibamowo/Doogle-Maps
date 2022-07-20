@@ -167,6 +167,7 @@
             app:layout_constraintTop_toBottomOf="@+id/cv2">
 
             <TextView
+                android:id="@+id/tvShare"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@color/brown"

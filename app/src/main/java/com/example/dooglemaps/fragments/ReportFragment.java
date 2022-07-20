@@ -43,7 +43,6 @@ public class ReportFragment extends Fragment {
     private static final String PATH = "reports";
 
 
-
     private FloatingActionButton btnReport;
     private RecyclerView recyclerView;
     private SearchView svFilter;
@@ -53,8 +52,6 @@ public class ReportFragment extends Fragment {
     private ReportAdapter reportAdapter;
     private ArrayList<Report> reports;
     private LatLng latLng;
-
-
 
 
     public ReportFragment(LatLng latLng) {
@@ -121,13 +118,13 @@ public class ReportFragment extends Fragment {
                 ArrayList<Report> filter2 = new ArrayList<>();
                 ArrayList<Report> filter3 = new ArrayList<>();
 
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    for (DataSnapshot childSnapShot: snapshot.getChildren()) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    for (DataSnapshot childSnapShot : snapshot.getChildren()) {
                         Report report = childSnapShot.getValue(Report.class);
                         String address = "";
                         Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
                         try {
-                            List<Address> addressList = geocoder.getFromLocation(report.getLat(), report.getLng(),1);
+                            List<Address> addressList = geocoder.getFromLocation(report.getLat(), report.getLng(), 1);
                             if (addressList.size() > 0) {
                                 address = addressList.get(0).getAddressLine(0);
                             }
@@ -150,6 +147,7 @@ public class ReportFragment extends Fragment {
                 reportAdapter.notifyDataSetChanged();
 
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -161,14 +159,15 @@ public class ReportFragment extends Fragment {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    for (DataSnapshot childSnapShot: snapshot.getChildren()) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    for (DataSnapshot childSnapShot : snapshot.getChildren()) {
                         Report report = childSnapShot.getValue(Report.class);
                         reports.add(report);
                     }
                     reportAdapter.notifyDataSetChanged();
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 

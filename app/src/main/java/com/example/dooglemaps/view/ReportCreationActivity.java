@@ -240,8 +240,7 @@ public class ReportCreationActivity extends AppCompatActivity implements Adapter
                 }
             }
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
