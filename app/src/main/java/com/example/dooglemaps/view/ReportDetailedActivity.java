@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -23,10 +25,14 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.parceler.Parcels;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class ReportDetailedActivity extends AppCompatActivity {
 
     Report report;
-    TextView tvDetailedPetDescription, tvTypeOfAnimal, tvShare;
+    TextView tvDetailedPetDescription, tvTypeOfAnimal, tvLocation, tvShare;
     ImageView ivDetailedReportedPet;
     CardView cvReportMap, cvStartReportChat;
 
@@ -43,9 +49,11 @@ public class ReportDetailedActivity extends AppCompatActivity {
         tvTypeOfAnimal = findViewById(R.id.tvTypeOfAnimal);
         tvDetailedPetDescription = findViewById(R.id.tvDetailedPetDescription);
         ivDetailedReportedPet = findViewById(R.id.ivDetailReportedPet);
+        tvLocation = findViewById(R.id.tvLocation);
 
         tvDetailedPetDescription.setText(report.getDescription());
         tvTypeOfAnimal.setText(report.getAnimal());
+        tvLocation.setText(grabAddress());
         bind();
 
         tvShare.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +110,21 @@ public class ReportDetailedActivity extends AppCompatActivity {
                 .load(report.getImageUrl())
                 .centerCrop()
                 .into(ivDetailedReportedPet);
+    }
+
+    private String grabAddress() {
+        String address = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addressList = geocoder.getFromLocation(report.getLat(), report.getLng(), 1);
+            if (addressList.size() > 0) {
+                address = addressList.get(0).getAddressLine(0);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
     }
 
 }

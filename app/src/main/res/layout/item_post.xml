@@ -33,29 +33,33 @@
             app:layout_constraintTop_toBottomOf="@+id/ivMissingPet" />
 
         <TextView
-            android:id="@+id/tvPetDescription"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tvExtraInfo"
-            app:layout_constraintTop_toBottomOf="@+id/ivMissingPet"
-            tools:text="Hey I lost my baby about a week ago. She's really shy and she hides that by growling so please don't agitate her too much if you find her"/>
-
-        <TextView
-            android:id="@+id/tvExtraInfo"
+            android:id="@+id/tvUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="50dp"
-            android:text="Extra Info:"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivMissingPet" />
+            app:layout_constraintTop_toBottomOf="@+id/ivMissingPet"
+            tools:text="PirateKing"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/tvPetDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvUsername"
+            tools:text="Hey I lost my baby about a week ago. Don't agitate her too much if you find her"
+            android:textColor="@color/black"/>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

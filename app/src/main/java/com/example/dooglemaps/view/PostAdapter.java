@@ -3,6 +3,7 @@ package com.example.dooglemaps.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.dooglemaps.R;
 import com.example.dooglemaps.viewModel.Post;
+import com.example.dooglemaps.viewModel.User;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.parceler.Parcels;
 
@@ -54,21 +61,35 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         ImageView ivMissingPet;
-        TextView tvPetDescription;
+        TextView tvPetDescription, tvUsername;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             tvPetDescription = itemView.findViewById(R.id.tvPetDescription);
             ivMissingPet = itemView.findViewById(R.id.ivMissingPet);
+            tvUsername = itemView.findViewById(R.id.tvUsername);
 
 
 
         }
 
         public void bind(Post post) {
-            tvPetDescription.setText(post.getDescription());
-            //Log.i(TAG, "Image URL: " + post.getImageUrl() + " Post Descrip: "+ post.getDescription());
+            String description = "<b>" + "Info: " + "</b>" + post.getDescription();
+            String userId = post.getUserId();
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users").child(userId);
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User user = snapshot.getValue(User.class);
+                    tvUsername.setText(user.getUsername());
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+            tvPetDescription.setText(Html.fromHtml(description));
             Glide.with(context)
                     .load(post.getImageUrl())
                     .centerCrop()
@@ -86,7 +107,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
                 context.startActivity(intent);
 
             }
-
         }
     }
 }

@@ -3,6 +3,8 @@ package com.example.dooglemaps.view;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,10 +24,14 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.parceler.Parcels;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class PostDetailedActivity extends AppCompatActivity {
 
     Post post;
-    TextView tvDetailedPetDescription, tvShare;
+    TextView tvDetailedPetDescription, tvPostTypeOfAnimal, tvLocation, tvShare;
     ImageView ivDetailedMissingPet;
     CardView cvPostMap, cvStartPostChat;
 
@@ -41,8 +47,14 @@ public class PostDetailedActivity extends AppCompatActivity {
         cvPostMap = findViewById(R.id.cvPostMap);
         tvDetailedPetDescription = findViewById(R.id.tvDetailedPostDescription);
         ivDetailedMissingPet = findViewById(R.id.ivDetailMissingPet);
+        tvPostTypeOfAnimal = findViewById(R.id.tvPostTypeOfAnimal);
+        tvLocation = findViewById(R.id.tvLocation);
 
         tvDetailedPetDescription.setText(post.getDescription());
+        tvPostTypeOfAnimal.setText(post.getAnimal());
+        tvLocation.setText(grabAddress());
+
+        bind();
 
         tvShare.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,10 +77,7 @@ public class PostDetailedActivity extends AppCompatActivity {
             }
         });
 
-        Glide.with(this)
-                .load(post.getImageUrl())
-                .centerCrop()
-                .into(ivDetailedMissingPet);
+
 
     }
 
@@ -96,5 +105,27 @@ public class PostDetailedActivity extends AppCompatActivity {
         Intent intent = new Intent(PostDetailedActivity.this, MapPostActivity.class);
         intent.putExtra("latlng", new LatLng(post.getLat(), post.getLng()));
         startActivity(intent);
+    }
+
+    private String grabAddress(){
+        String address = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addressList = geocoder.getFromLocation(post.getLat(), post.getLng(),1);
+            if (addressList.size() > 0) {
+                address = addressList.get(0).getAddressLine(0);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
+    private void bind(){
+        Glide.with(this)
+                .load(post.getImageUrl())
+                .centerCrop()
+                .into(ivDetailedMissingPet);
     }
 }
