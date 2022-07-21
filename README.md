@@ -5,9 +5,10 @@ Original App Design Project - README Template
 
 ## Table of Contents
 1. [Overview](#Overview)
-1. [Product Spec](#Product-Spec)
-1. [Wireframes](#Wireframes)
-2. [Schema](#Schema)
+2. [Product Spec](#Product-Spec)
+3. [Wireframes](#Wireframes)
+4. [Screen SnapShot](#Screen-Snapshots)
+5. [App Features](#App-Features)
 
 ## Overview
 ### Description
@@ -15,7 +16,6 @@ Original App Design Project - README Template
 - I would also love to implement a type of blog that allows for users to post notices of their pets going missing. Something kind of like twitter, with the main focus just allowing others within the community to be aware and on the lookout for that person’s pet.
 
 ### App Evaluation
-[Evaluation of your app across the following attributes]
 - **Category:** Navigation
 - **Mobile:** Its essential for this app to be on mobile devices as it makes it possible for quick updates on the location of the missing/stray animals. The camera app is used to take pictures of the animals, and the map is used to give the location of the animals the user is posting.
 - **Story:** This app gives pet owners the opportunity to reunite with their lost companions by having the their community work together to make it possible. 
@@ -31,57 +31,85 @@ Original App Design Project - README Template
 
 * User will login/signup to access the application
 * User can interact with the onscreen map to look for reported animals nearby
-* Users can create their own reports by interacting with the onscreen map
+* Users can create their own reports by interacting with an onscreen map
 * Report window will allow the user to provide the location, description, and a picture of the lost animal
 * User can post & interact with a feed that consists of pet owners reporting their lost pets
+* An algorithm will be implemented that matches similar reports and posts to each other
+* Special search feature will be implemented that searches through the animal type, description, and location all at the same time
 
 
 **Optional Nice-to-have Stories**
 
-* User will have the option to select an anonymous login option that doesn't require account creation
-* List of animals that have been captured/found in the area
-* Option for users to like missing pets post to bring attention to them
-* filter that allows a user to filter for specific animals within the map
-* ...
+* 1:1 Chat feature within the application
+* Notifications for both the chat and algorithm feature
+* Share feature that allows the user to share a report/post to someone in their contacts
+
 
 ### 2. Screen Archetypes
 
 * Login/Signup
    * After downloading the app, the user is prompted to login or create an account.
+* Home Screen
+   * After login, user is directed to multiple feeds that contain reports and missing animal posts.
+* Report/Missing Post Screen
+   * User can direct themselves to detailed screens of the report/missing posts. These detailed screens give the user access to a special Map, sharing features, and chat features
 * Map Screen
-   * After login, user is directed to the map that contains all animal reports in their location
-* Feed Screen
-   * User can direct themselves to the feed which displays post of other users who have lost their pet
+   * User can interact with this special map that contains reports made in the area
+* Chat Screen
+   * User can message other users within the application
 * Settings Screen
-   * User can direct themselves to settings where they can change their filters/color scheme/ and even logout
+   * User can direct themselves to settings where they can edit their profile or logout
 
    
 ### 3. Navigation
 
-**Tab Navigation** (Tab to Screen)
-
-* Map
-* Feed
-* Settings
-
 **Flow Navigation** (Screen to Screen)
 
-* [list first screen here]
-   * [list screen navigation here]
-   * ...
-* [list second screen here]
-   * [list screen navigation here]
-   * ...
+* Login Screen
+   * Signup Screen
+   * Home Screen
+* Signup Screen
+   * Login Screen
+   * Home Screen
+* Home Screen
+   * Report Tab
+   * Missing Tab
+   * Chat Tab
+   * Profile Screen
+   * Settings Screen
+* Setting Screen
+   * Edit Profile Tab
+   * Logout Tab
+
 
 ## Wireframes
 <img src="https://i.imgur.com/Zmm2fi5.jpg" width=600>
 
-## Schema 
-[This section will be completed in Unit 9]
-### Models
-[Add table of models]
-### Networking
-- [Add list of network requests by screen ]
-- [Create basic snippets for each Parse network request]
-- [OPTIONAL: List endpoints if using existing API such as Yelp]
+## Screen Snapshots
+
+<p float="left">
+  <img src="https://i.imgur.com/Na4jsMY.jpg" width=200 />
+  <img src="https://i.imgur.com/hGKS1GM.jpg" width=200 />
+  <img src="https://i.imgur.com/1D0PUAb.png" width=200 />
+  <img src="https://i.imgur.com/lFKB3Ac.png" width=200 />
+  <img src="https://i.imgur.com/YEuztrG.png" width=200 />
+</p>
+
+## App Features
+
+### Complex Features
+
+- **Algorithm:** The application has an algorithm implemented that matches reports to their respective posts. It does this by checking three things. The first thing it checks is the animal type listed for the post, this is the one thing that has to be exact. The next thing it checks is the description, the algorithm uses a levenshtein string checker to check if two strings are similar enough. The last thing it checks is the location, the report and post have to be within 10 miles of each other.
+- **Search:** The application has a search feature implemented that filters the reports/missing animal posts by three things at a time. The first thing the filter checks for is the location, so if the user is typing in a location posts that are within that location take priority for the filter. The second thing the filter checks for is the animal type, and the last thing it checks for is the description. These filters make it much easier to find a specfic report/ missing animal post
+
+### Other Features
+
+- **Chat:** The application has a 1:1 chat implemented within the application. This 1:1 chat can be accessed within the detailed view for reports/missing animal posts, or through the chat tab that can be seen through the home screen. In this chat one can send a message to another user and recieve it in real time. This chat has read/delievered receipts as it is important that users see when their message has been seen.
+- **Notifications:** The application has a notification system implemented that works for both the chat and algorithm. For the chat whenever a user sends a message to another, the receiving user gets a notification that shows who sent the message and part of the message itself. For the algorithm, once the matching reports/posts are found, a notification is sent to the users of all the missing animals posts who recieved a match. This notification lets the user know that a match for them has been found, and takes them to a detailed view of the report. 
+- **Edit Profile:** The application contains an edit profile feature that allows the user to change their profile picture and their username. These changes are made real time and can be seen instantly by other users of the application.
+- **Share:** The application contains a share feature that allows the user to share a report/missing animal post to someone in their contacts, email, etc. The information that is shared consists of the description and a picture of the animal in question.
+
+### Challenges
+
+- One of the biggest challenges I had while creating this application was getting the notification system to work. The day that I decided to focus on notifications I spent almost the entire day attempting to implement it within my code. I faced several roadblocks that seemed unsurmountable, but I was eventually able to get through each one. I eventually got to the point where I had written all the code that I needed for the notification system to be working. Unfortunately, this type of code wasn’t something that I could test while adding the code, as you would only know when it was working once you received a notification. This worked against me as I tested the code multiple times and it wasn’t working as expected, and to make things worse I wasn’t receiving any error messages. I was forced to go back and read my code line to line, adding breakpoints along the way, so that I could see what portions of the code weren’t being reached. Luckily that approach worked and I was able to get the notification system working within the deadline I set for myself.
 
