@@ -1,6 +1,3 @@
-Original App Design Project - README Template
-===
-
 # Doogle Maps
 
 ## Table of Contents
@@ -109,7 +106,4 @@ Original App Design Project - README Template
 - **Edit Profile:** The application contains an edit profile feature that allows the user to change their profile picture and their username. These changes are made real time and can be seen instantly by other users of the application.
 - **Share:** The application contains a share feature that allows the user to share a report/missing animal post to someone in their contacts, email, etc. The information that is shared consists of the description and a picture of the animal in question.
 
-### Challenges
-
-- One of the biggest challenges I had while creating this application was getting the notification system to work. The day that I decided to focus on notifications I spent almost the entire day attempting to implement it within my code. I faced several roadblocks that seemed unsurmountable, but I was eventually able to get through each one. I eventually got to the point where I had written all the code that I needed for the notification system to be working. Unfortunately, this type of code wasn’t something that I could test while adding the code, as you would only know when it was working once you received a notification. This worked against me as I tested the code multiple times and it wasn’t working as expected, and to make things worse I wasn’t receiving any error messages. I was forced to go back and read my code line to line, adding breakpoints along the way, so that I could see what portions of the code weren’t being reached. Luckily that approach worked and I was able to get the notification system working within the deadline I set for myself.
 
