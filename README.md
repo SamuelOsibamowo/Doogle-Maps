@@ -10,7 +10,6 @@
 ## Overview
 ### Description
 - This app is essentially a lost dog tracker, that uses googles mapping system. This app is centered for pet owners or lovers of animals. The app allows the user to post pictures of missing/stray pets in their community. The picture that they post uses their location to add a marker on the map within the app. This marker contains a picture of the animal, along with the location and any other information the user wants to add. 
-- I would also love to implement a type of blog that allows for users to post notices of their pets going missing. Something kind of like twitter, with the main focus just allowing others within the community to be aware and on the lookout for that person’s pet.
 
 ### App Evaluation
 - **Category:** Navigation
